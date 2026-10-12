@@ -1,131 +1,279 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#111827">
   <title>간단한 타이머</title>
   <style>
     * { box-sizing: border-box; }
+    :root {
+      color-scheme: dark;
+      --bg: #0b1020;
+      --card: #151c2f;
+      --muted: #9ca3af;
+      --text: #f9fafb;
+      --primary: #6366f1;
+      --primary-active: #4f46e5;
+      --danger: #ef4444;
+      --border: #2b354d;
+    }
     body {
       margin: 0;
-      min-height: 100vh;
+      min-height: 100dvh;
       display: grid;
       place-items: center;
+      padding: max(20px, env(safe-area-inset-top)) 16px max(20px, env(safe-area-inset-bottom));
+      background: radial-gradient(circle at top, #1e2a4a 0, var(--bg) 48%);
+      color: var(--text);
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: linear-gradient(135deg, #eef2ff, #fdf2f8);
-      color: #1f2937;
     }
-    .card {
-      width: min(92vw, 420px);
-      padding: 32px;
+    main {
+      width: min(100%, 430px);
+      padding: 24px;
+      border: 1px solid var(--border);
       border-radius: 24px;
-      background: rgba(255,255,255,.92);
-      box-shadow: 0 20px 50px rgba(79,70,229,.15);
+      background: rgba(21, 28, 47, 0.94);
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
+    }
+    h1 {
+      margin: 0 0 6px;
+      font-size: 1.35rem;
       text-align: center;
     }
-    h1 { margin: 0 0 22px; font-size: 24px; }
-    .inputs { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 22px; }
-    input {
-      width: 82px;
-      padding: 11px;
-      border: 1px solid #d1d5db;
-      border-radius: 12px;
-      font-size: 17px;
+    .hint {
+      margin: 0 0 20px;
+      color: var(--muted);
+      font-size: 0.9rem;
       text-align: center;
     }
-    .time {
-      margin: 12px 0 26px;
-      font-size: clamp(54px, 16vw, 76px);
-      font-weight: 750;
-      letter-spacing: -3px;
+    .display {
+      margin: 12px 0 24px;
       font-variant-numeric: tabular-nums;
+      font-size: clamp(3.2rem, 18vw, 5.25rem);
+      font-weight: 750;
+      line-height: 1;
+      letter-spacing: -0.06em;
+      text-align: center;
+      text-shadow: 0 0 28px rgba(99, 102, 241, 0.25);
     }
-    .buttons { display: flex; gap: 10px; justify-content: center; }
-    button {
-      border: 0;
+    .inputs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    label {
+      display: grid;
+      gap: 7px;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+    input {
+      width: 100%;
+      min-height: 48px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
       border-radius: 12px;
-      padding: 12px 20px;
-      font-size: 16px;
-      font-weight: 700;
-      cursor: pointer;
+      outline: none;
+      background: #0d1425;
+      color: var(--text);
+      font: inherit;
+      font-size: 1rem;
+      text-align: center;
     }
-    #start { background: #4f46e5; color: white; }
-    #pause { background: #e5e7eb; color: #1f2937; }
-    #reset { background: #fee2e2; color: #b91c1c; }
-    button:active { transform: scale(.97); }
-    .done { color: #dc2626; animation: pulse .8s infinite alternate; }
-    @keyframes pulse { to { transform: scale(1.05); } }
+    input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99,102,241,.2); }
+    .buttons { display: grid; gap: 10px; }
+    button {
+      width: 100%;
+      min-height: 50px;
+      padding: 12px 16px;
+      border: 0;
+      border-radius: 13px;
+      cursor: pointer;
+      color: white;
+      background: var(--primary);
+      font: inherit;
+      font-weight: 700;
+      white-space: nowrap;
+      touch-action: manipulation;
+    }
+    button:active { transform: translateY(1px); background: var(--primary-active); }
+    button.secondary { background: #334155; }
+    button.danger { background: #7f1d1d; }
+    button:disabled { cursor: not-allowed; opacity: 0.48; transform: none; }
+    .status {
+      min-height: 22px;
+      margin: 15px 0 0;
+      color: var(--muted);
+      text-align: center;
+      font-size: 0.9rem;
+    }
+    .finished .display { color: #fca5a5; animation: pulse .7s ease-in-out 3; }
+    @keyframes pulse { 50% { transform: scale(1.04); } }
+    @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
   </style>
 </head>
 <body>
-  <main class="card">
-    <h1>⏱️ 간단한 타이머</h1>
+  <main id="app">
+    <h1>간단한 타이머</h1>
+    <p class="hint">시간을 설정하고 시작하세요.</p>
+
+    <div id="display" class="display" role="timer" aria-live="polite">05:00</div>
+
     <div class="inputs">
-      <input id="minutes" type="number" min="0" max="999" value="5" aria-label="분" />
-      <span>분</span>
-      <input id="seconds" type="number" min="0" max="59" value="0" aria-label="초" />
-      <span>초</span>
+      <label>분
+        <input id="minutes" type="number" inputmode="numeric" min="0" max="999" value="5" aria-label="타이머 분">
+      </label>
+      <label>초
+        <input id="seconds" type="number" inputmode="numeric" min="0" max="59" value="0" aria-label="타이머 초">
+      </label>
     </div>
-    <div id="display" class="time" aria-live="polite">05:00</div>
+
     <div class="buttons">
       <button id="start">시작</button>
-      <button id="pause">일시정지</button>
-      <button id="reset">초기화</button>
+      <button id="pause" class="secondary" disabled>일시정지</button>
+      <button id="reset" class="danger">초기화</button>
     </div>
+    <p id="status" class="status" aria-live="assertive">준비됨</p>
   </main>
+
   <script>
-    const minInput = document.getElementById('minutes');
-    const secInput = document.getElementById('seconds');
+    const app = document.getElementById('app');
     const display = document.getElementById('display');
+    const minutesInput = document.getElementById('minutes');
+    const secondsInput = document.getElementById('seconds');
     const startBtn = document.getElementById('start');
     const pauseBtn = document.getElementById('pause');
     const resetBtn = document.getElementById('reset');
+    const status = document.getElementById('status');
+
     let remaining = 300;
-    let timer = null;
+    let initial = 300;
+    let endAt = null;
+    let timerId = null;
+    let running = false;
 
-    function inputSeconds() {
-      const m = Math.max(0, Number(minInput.value) || 0);
-      const s = Math.min(59, Math.max(0, Number(secInput.value) || 0));
-      return Math.floor(m * 60 + s);
+    function clamp(value, min, max) {
+      const number = Number.parseInt(value, 10);
+      return Number.isFinite(number) ? Math.min(max, Math.max(min, number)) : min;
     }
+
+    function readInputs() {
+      const min = clamp(minutesInput.value, 0, 999);
+      const sec = clamp(secondsInput.value, 0, 59);
+      minutesInput.value = min;
+      secondsInput.value = sec;
+      return min * 60 + sec;
+    }
+
+    function format(total) {
+      total = Math.max(0, Math.ceil(total));
+      const min = Math.floor(total / 60);
+      const sec = total % 60;
+      return String(min).padStart(2, '0') + ':' + String(sec).padStart(2, '0');
+    }
+
     function render() {
-      const m = Math.floor(remaining / 60);
-      const s = remaining % 60;
-      display.textContent = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+      display.textContent = format(remaining);
+      document.title = format(remaining) + ' · 타이머';
     }
-    function syncFromInputs() {
-      if (!timer) { remaining = inputSeconds(); render(); display.classList.remove('done'); }
-    }
-    minInput.addEventListener('input', syncFromInputs);
-    secInput.addEventListener('input', syncFromInputs);
 
-    startBtn.addEventListener('click', () => {
-      if (timer) return;
-      if (remaining <= 0) remaining = inputSeconds();
-      if (remaining <= 0) return;
-      display.classList.remove('done');
-      timer = setInterval(() => {
-        remaining--;
-        render();
-        if (remaining <= 0) {
-          clearInterval(timer);
-          timer = null;
-          display.classList.add('done');
-          if ('vibrate' in navigator) navigator.vibrate([200, 100, 200]);
-        }
-      }, 1000);
-    });
-    pauseBtn.addEventListener('click', () => {
-      clearInterval(timer);
-      timer = null;
-    });
-    resetBtn.addEventListener('click', () => {
-      clearInterval(timer);
-      timer = null;
-      remaining = inputSeconds();
-      display.classList.remove('done');
+    function setInputsDisabled(disabled) {
+      minutesInput.disabled = disabled;
+      secondsInput.disabled = disabled;
+    }
+
+    function stopInterval() {
+      clearInterval(timerId);
+      timerId = null;
+    }
+
+    function finish() {
+      running = false;
+      remaining = 0;
+      stopInterval();
       render();
-    });
+      app.classList.add('finished');
+      setInputsDisabled(false);
+      startBtn.disabled = false;
+      startBtn.textContent = '다시 시작';
+      pauseBtn.disabled = true;
+      status.textContent = '시간이 끝났습니다!';
+      if ('vibrate' in navigator) navigator.vibrate([200, 100, 200]);
+    }
+
+    function tick() {
+      remaining = Math.max(0, Math.ceil((endAt - Date.now()) / 1000));
+      render();
+      if (remaining <= 0) finish();
+    }
+
+    function start() {
+      app.classList.remove('finished');
+      if (remaining <= 0 || (!running && remaining === initial)) {
+        initial = readInputs();
+        remaining = initial;
+      }
+      if (remaining <= 0) {
+        status.textContent = '1초 이상의 시간을 설정해 주세요.';
+        return;
+      }
+      running = true;
+      endAt = Date.now() + remaining * 1000;
+      stopInterval();
+      timerId = setInterval(tick, 200);
+      setInputsDisabled(true);
+      startBtn.disabled = true;
+      pauseBtn.disabled = false;
+      pauseBtn.textContent = '일시정지';
+      status.textContent = '타이머 실행 중';
+      tick();
+    }
+
+    function pause() {
+      if (!running) return;
+      remaining = Math.max(0, Math.ceil((endAt - Date.now()) / 1000));
+      running = false;
+      stopInterval();
+      render();
+      startBtn.disabled = false;
+      startBtn.textContent = '계속';
+      pauseBtn.disabled = true;
+      status.textContent = '일시정지됨';
+    }
+
+    function reset() {
+      running = false;
+      stopInterval();
+      app.classList.remove('finished');
+      initial = readInputs();
+      remaining = initial;
+      setInputsDisabled(false);
+      startBtn.disabled = false;
+      startBtn.textContent = '시작';
+      pauseBtn.disabled = true;
+      status.textContent = '준비됨';
+      render();
+    }
+
+    function syncFromInputs() {
+      if (running) return;
+      initial = readInputs();
+      remaining = initial;
+      app.classList.remove('finished');
+      startBtn.textContent = '시작';
+      status.textContent = '준비됨';
+      render();
+    }
+
+    startBtn.addEventListener('click', start);
+    pauseBtn.addEventListener('click', pause);
+    resetBtn.addEventListener('click', reset);
+    minutesInput.addEventListener('input', syncFromInputs);
+    secondsInput.addEventListener('input', syncFromInputs);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden && running) tick(); });
+
     render();
   </script>
 </body>
