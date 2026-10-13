@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#f7f8f3">
+  <title>오늘의 칼로리</title>
+  <style>
+    :root{
+      --bg:#f7f8f3; --card:#ffffff; --ink:#1d2922; --muted:#748078;
+      --green:#2f7d55; --green2:#76b78f; --soft:#e7f2e9; --line:#e6e9e4;
+      --orange:#e98542; --danger:#cf514c; --shadow:0 10px 28px rgba(35,59,43,.08);
+    }
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Segoe UI",sans-serif}
+    button,input{font:inherit}
+    button{cursor:pointer}
+    .app{width:100%;max-width:520px;min-height:100vh;margin:0 auto;padding:0 18px calc(34px + env(safe-area-inset-bottom))}
+    header{padding:calc(22px + env(safe-area-inset-top)) 2px 16px;display:flex;justify-content:space-between;align-items:center}
+    .eyebrow{font-size:12px;font-weight:800;letter-spacing:.12em;color:var(--green);text-transform:uppercase;margin-bottom:4px}
+    h1{font-size:25px;margin:0;letter-spacing:-.04em}
+    .date-btn{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:14px;padding:10px 12px;font-size:13px;font-weight:700;box-shadow:0 4px 14px rgba(35,59,43,.04)}
+    .date-wrap{position:relative}.date-wrap input{position:absolute;inset:0;width:100%;opacity:0;cursor:pointer}
+    .hero{background:linear-gradient(145deg,#246846,#3d8d62);border-radius:25px;color:#fff;padding:22px;box-shadow:0 14px 32px rgba(47,125,85,.23);position:relative;overflow:hidden}
+    .hero:after{content:"";position:absolute;width:180px;height:180px;border:38px solid rgba(255,255,255,.07);border-radius:50%;right:-95px;top:-90px}
+    .hero-top{display:flex;justify-content:space-between;align-items:start;position:relative;z-index:1}
+    .hero-label{font-size:13px;opacity:.8;font-weight:650}.total{font-size:39px;font-weight:850;letter-spacing:-.04em;margin-top:3px}.total small{font-size:15px;font-weight:600;opacity:.8;margin-left:4px}
+    .goal-edit{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.17);border-radius:12px;padding:8px 10px;font-size:12px;font-weight:700}
+    .bar{height:9px;background:rgba(255,255,255,.17);border-radius:20px;margin-top:20px;overflow:hidden}.fill{height:100%;width:0;background:#d9f4df;border-radius:20px;transition:width .35s ease}
+    .hero-foot{margin-top:9px;display:flex;justify-content:space-between;font-size:12px;opacity:.82}
+    .section-head{display:flex;justify-content:space-between;align-items:end;margin:24px 2px 11px}.section-head h2{margin:0;font-size:17px;letter-spacing:-.02em}.section-head span{font-size:12px;color:var(--muted)}
+    .form-card{background:var(--card);border-radius:21px;padding:16px;box-shadow:var(--shadow);border:1px solid rgba(230,233,228,.7)}
+    .fields{display:grid;grid-template-columns:1fr 105px;gap:10px}
+    label{display:block;font-size:12px;color:var(--muted);font-weight:750;margin:0 0 7px 3px}
+    input[type=text],input[type=number]{width:100%;border:1.5px solid var(--line);background:#fafbf9;border-radius:13px;padding:13px 12px;outline:none;color:var(--ink);transition:.2s}
+    input:focus{border-color:var(--green2);box-shadow:0 0 0 3px rgba(118,183,143,.14);background:#fff}
+    .add-btn{width:100%;border:0;background:var(--green);color:#fff;border-radius:14px;padding:14px;margin-top:12px;font-weight:800;box-shadow:0 7px 16px rgba(47,125,85,.2)}
+    .add-btn:active{transform:scale(.985)}
+    .list{display:flex;flex-direction:column;gap:9px}
+    .item{background:#fff;border:1px solid var(--line);border-radius:17px;padding:14px 14px 14px 15px;display:flex;align-items:center;gap:12px;animation:in .2s ease}
+    @keyframes in{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+    .food-icon{width:39px;height:39px;flex:0 0 auto;border-radius:13px;background:var(--soft);display:grid;place-items:center;font-size:19px}
+    .item-main{min-width:0;flex:1}.food-name{font-weight:770;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.food-time{font-size:11px;color:var(--muted);margin-top:3px}
+    .kcal{text-align:right;font-size:14px;font-weight:820}.kcal small{font-size:10px;color:var(--muted);font-weight:650}
+    .delete{width:32px;height:32px;border:0;border-radius:10px;background:#f8f2f1;color:var(--danger);font-size:17px;display:grid;place-items:center}
+    .empty{text-align:center;background:#fff;border:1px dashed #d9ded8;border-radius:18px;padding:30px 15px;color:var(--muted)}.empty b{display:block;color:var(--ink);margin:9px 0 5px}.empty .emoji{font-size:31px}
+    .tips{display:flex;gap:7px;overflow:auto;padding:1px 1px 3px;scrollbar-width:none}.tips::-webkit-scrollbar{display:none}.chip{white-space:nowrap;border:1px solid #dbe7dd;background:#f2f8f3;color:#326947;border-radius:99px;padding:8px 11px;font-size:12px;font-weight:700}
+    dialog{border:0;border-radius:22px;padding:0;width:min(88%,390px);box-shadow:0 24px 70px rgba(0,0,0,.25);color:var(--ink)}dialog::backdrop{background:rgba(20,30,24,.45);backdrop-filter:blur(3px)}
+    .modal{padding:22px}.modal h3{margin:0 0 7px;font-size:20px}.modal p{font-size:13px;color:var(--muted);margin:0 0 17px;line-height:1.5}.modal-actions{display:grid;grid-template-columns:1fr 1.5fr;gap:9px;margin-top:14px}.modal button{border:0;border-radius:13px;padding:12px;font-weight:750}.cancel{background:#eef0ed;color:var(--ink)}.save{background:var(--green);color:#fff}
+    .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translate(-50%,30px);background:#1e2c24;color:white;border-radius:12px;padding:11px 15px;font-size:13px;font-weight:700;opacity:0;pointer-events:none;transition:.25s;z-index:10;white-space:nowrap}.toast.show{opacity:1;transform:translate(-50%,0)}
+    @media(max-width:350px){.fields{grid-template-columns:1fr}.app{padding-left:13px;padding-right:13px}.total{font-size:34px}}
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <div><div class="eyebrow">My Food Log</div><h1>오늘의 칼로리</h1></div>
+      <div class="date-wrap"><button class="date-btn" id="dateLabel">오늘</button><input type="date" id="datePicker" aria-label="기록 날짜 선택"></div>
+    </header>
+
+    <section class="hero" aria-label="칼로리 요약">
+      <div class="hero-top">
+        <div><div class="hero-label">먹은 칼로리</div><div class="total"><span id="total">0</span><small>kcal</small></div></div>
+        <button class="goal-edit" id="goalBtn">목표 2,000</button>
+      </div>
+      <div class="bar"><div class="fill" id="fill"></div></div>
+      <div class="hero-foot"><span id="percent">목표의 0%</span><span id="remaining">2,000 kcal 남음</span></div>
+    </section>
+
+    <div class="section-head"><h2>음식 추가</h2><span>음식과 칼로리를 입력하세요</span></div>
+    <section class="form-card">
+      <form id="foodForm">
+        <div class="fields">
+          <div><label for="foodName">음식 이름</label><input id="foodName" type="text" maxlength="40" placeholder="예: 닭가슴살 샐러드" autocomplete="off" required></div>
+          <div><label for="calories">칼로리</label><input id="calories" type="number" min="1" max="9999" inputmode="numeric" placeholder="kcal" required></div>
+        </div>
+        <button class="add-btn" type="submit">＋ 기록 추가하기</button>
+      </form>
+    </section>
+
+    <div class="section-head"><h2>빠른 입력</h2><span>누르면 입력돼요</span></div>
+    <div class="tips" id="quickList">
+      <button class="chip" data-name="밥 한 공기" data-kcal="300">🍚 밥 300</button>
+      <button class="chip" data-name="삶은 달걀" data-kcal="75">🥚 달걀 75</button>
+      <button class="chip" data-name="바나나" data-kcal="100">🍌 바나나 100</button>
+      <button class="chip" data-name="아메리카노" data-kcal="10">☕ 커피 10</button>
+      <button class="chip" data-name="닭가슴살" data-kcal="165">🍗 닭가슴살 165</button>
+    </div>
+
+    <div class="section-head"><h2>먹은 음식</h2><span id="count">0개 기록</span></div>
+    <section class="list" id="foodList"></section>
+  </main>
+
+  <dialog id="goalDialog">
+    <form class="modal" id="goalForm" method="dialog">
+      <h3>하루 목표 설정</h3><p>나에게 맞는 하루 섭취 칼로리 목표를 입력하세요.</p>
+      <label for="goalInput">목표 칼로리 (kcal)</label><input id="goalInput" type="number" min="100" max="10000" inputmode="numeric" required>
+      <div class="modal-actions"><button class="cancel" value="cancel" type="button" id="cancelGoal">취소</button><button class="save" type="submit">저장하기</button></div>
+    </form>
+  </dialog>
+  <div class="toast" id="toast" role="status"></div>
+
+  <script>
+    const $=s=>document.querySelector(s);
+    const datePicker=$('#datePicker'), dateLabel=$('#dateLabel'), list=$('#foodList');
+    let selected=todayKey();
+    let data=read('calorieDiaryData',{});
+    let goal=Number(read('calorieDiaryGoal',2000))||2000;
+
+    function read(k,fallback){try{const v=localStorage.getItem(k);return v===null?fallback:JSON.parse(v)}catch(e){return fallback}}
+    function save(){localStorage.setItem('calorieDiaryData',JSON.stringify(data))}
+    function todayKey(){const d=new Date(), off=d.getTimezoneOffset();return new Date(d.getTime()-off*60000).toISOString().slice(0,10)}
+    function esc(s){return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+    function formatDate(key){
+      if(key===todayKey()) return '오늘';
+      const d=new Date(key+'T00:00:00'); return `${d.getMonth()+1}월 ${d.getDate()}일`;
+    }
+    function items(){return data[selected]||[]}
+    function render(){
+      datePicker.value=selected; dateLabel.textContent=formatDate(selected);
+      const arr=items(), total=arr.reduce((s,x)=>s+Number(x.kcal),0), pct=Math.round(total/goal*100);
+      $('#total').textContent=total.toLocaleString(); $('#goalBtn').textContent='목표 '+goal.toLocaleString();
+      $('#fill').style.width=Math.min(pct,100)+'%'; $('#fill').style.background=pct>100?'#ffd0b0':'#d9f4df';
+      $('#percent').textContent=`목표의 ${pct}%`;
+      $('#remaining').textContent=total<=goal?`${(goal-total).toLocaleString()} kcal 남음`:`${(total-goal).toLocaleString()} kcal 초과`;
+      $('#count').textContent=`${arr.length}개 기록`;
+      if(!arr.length){list.innerHTML='<div class="empty"><div class="emoji">🥗</div><b>아직 기록이 없어요</b><span>오늘 먹은 음식부터 추가해 보세요.</span></div>';return}
+      list.innerHTML=arr.slice().reverse().map(x=>`<article class="item"><div class="food-icon">${icon(x.name)}</div><div class="item-main"><div class="food-name">${esc(x.name)}</div><div class="food-time">${esc(x.time)}</div></div><div class="kcal">${Number(x.kcal).toLocaleString()} <small>kcal</small></div><button class="delete" data-id="${x.id}" aria-label="${esc(x.name)} 삭제">×</button></article>`).join('');
+    }
+    function icon(n){if(/커피|라떼|차/.test(n))return'☕';if(/밥|김밥|죽/.test(n))return'🍚';if(/과일|사과|바나나/.test(n))return'🍎';if(/샐러드|채소/.test(n))return'🥗';if(/빵|토스트/.test(n))return'🍞';if(/달걀|계란/.test(n))return'🥚';return'🍽️'}
+    function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(t.timer);t.timer=setTimeout(()=>t.classList.remove('show'),1800)}
+
+    $('#foodForm').addEventListener('submit',e=>{
+      e.preventDefault(); const name=$('#foodName').value.trim(), kcal=Number($('#calories').value); if(!name||kcal<1)return;
+      if(!data[selected])data[selected]=[];
+      data[selected].push({id:Date.now().toString(36)+Math.random().toString(36).slice(2),name,kcal,time:new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})});
+      save();e.target.reset();render();$('#foodName').focus();toast('기록을 추가했어요');
+    });
+    list.addEventListener('click',e=>{const b=e.target.closest('.delete');if(!b)return;data[selected]=(data[selected]||[]).filter(x=>x.id!==b.dataset.id);if(!data[selected].length)delete data[selected];save();render();toast('기록을 삭제했어요')});
+    datePicker.addEventListener('change',e=>{selected=e.target.value||todayKey();render()});
+    $('#quickList').addEventListener('click',e=>{const b=e.target.closest('.chip');if(!b)return;$('#foodName').value=b.dataset.name;$('#calories').value=b.dataset.kcal;$('#calories').focus()});
+    $('#goalBtn').addEventListener('click',()=>{$('#goalInput').value=goal;$('#goalDialog').showModal();setTimeout(()=>$('#goalInput').focus(),50)});
+    $('#cancelGoal').addEventListener('click',()=>$('#goalDialog').close());
+    $('#goalForm').addEventListener('submit',e=>{e.preventDefault();const v=Number($('#goalInput').value);if(v<100||v>10000)return;goal=v;localStorage.setItem('calorieDiaryGoal',JSON.stringify(goal));$('#goalDialog').close();render();toast('목표를 저장했어요')});
+    $('#goalDialog').addEventListener('click',e=>{if(e.target===$('#goalDialog'))$('#goalDialog').close()});
+    render();
+  </script>
+</body>
+</html>
