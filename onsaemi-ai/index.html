@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#08111f" />
+  <title>온새미 AI — 나만의 생각 동반자</title>
+  <style>
+    :root{
+      --bg:#07101d;--panel:#0d1829;--panel2:#111f34;--line:#20324c;--text:#eef5ff;--muted:#8fa3bf;
+      --mint:#65f0c2;--blue:#67a8ff;--violet:#aa8cff;--danger:#ff7790;--shadow:0 20px 60px rgba(0,0,0,.35)
+    }
+    *{box-sizing:border-box} html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Pretendard","Noto Sans KR",sans-serif}
+    button,textarea,input,select{font:inherit} button{cursor:pointer}
+    body{background:radial-gradient(circle at 80% -10%,rgba(103,168,255,.16),transparent 38%),radial-gradient(circle at 10% 10%,rgba(101,240,194,.09),transparent 32%),var(--bg)}
+    .app{min-height:100dvh;display:grid;grid-template-columns:280px 1fr}
+    .side{border-right:1px solid var(--line);background:rgba(7,16,29,.82);backdrop-filter:blur(18px);padding:22px 16px;display:flex;flex-direction:column;gap:18px}
+    .brand{display:flex;align-items:center;gap:11px;padding:0 6px}.logo{width:40px;height:40px;border-radius:14px;background:conic-gradient(from 180deg,var(--mint),var(--blue),var(--violet),var(--mint));display:grid;place-items:center;box-shadow:0 0 28px rgba(101,240,194,.25)}
+    .logo:after{content:"◈";width:32px;height:32px;display:grid;place-items:center;border-radius:11px;background:#091423;color:white}.brand strong{font-size:18px}.brand small{display:block;color:var(--muted);font-size:11px;margin-top:2px}
+    .new{border:1px solid rgba(101,240,194,.35);background:rgba(101,240,194,.09);color:var(--mint);border-radius:14px;padding:12px 14px;font-weight:750;text-align:left}
+    .label{font-size:11px;letter-spacing:.12em;color:#7085a3;padding:0 7px;text-transform:uppercase}.history{display:grid;gap:7px;overflow:auto}.history button{border:0;background:transparent;color:#b9c7da;text-align:left;padding:10px;border-radius:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.history button:hover,.history button.active{background:var(--panel2);color:white}
+    .side-foot{margin-top:auto;display:grid;gap:8px}.ghost{border:1px solid var(--line);background:transparent;color:#aebdd1;border-radius:12px;padding:10px}.status{font-size:11px;color:#6f849f;text-align:center}.status i{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--mint);margin-right:5px;box-shadow:0 0 9px var(--mint)}
+    .main{height:100dvh;display:flex;flex-direction:column;min-width:0}.top{height:70px;flex:0 0 auto;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 24px;gap:12px;background:rgba(7,16,29,.5);backdrop-filter:blur(12px)}
+    .menu{display:none;border:0;background:transparent;color:white;font-size:22px}.title{font-weight:800}.top .tag{font-size:11px;color:var(--mint);border:1px solid rgba(101,240,194,.28);border-radius:999px;padding:4px 8px}.spacer{flex:1}.mode{background:var(--panel);border:1px solid var(--line);color:#dce7f6;border-radius:10px;padding:8px 10px;outline:none}
+    .chat{flex:1;overflow:auto;padding:28px max(22px,calc((100% - 860px)/2));scroll-behavior:smooth}.welcome{text-align:center;padding:8vh 0 28px}.orb{width:82px;height:82px;margin:0 auto 20px;border-radius:28px;background:linear-gradient(145deg,rgba(101,240,194,.95),rgba(103,168,255,.95) 55%,rgba(170,140,255,.95));box-shadow:0 18px 70px rgba(103,168,255,.2);position:relative}.orb:after{content:"✦";position:absolute;inset:7px;display:grid;place-items:center;border-radius:23px;background:#0a1626;font-size:30px}.welcome h1{font-size:clamp(25px,5vw,38px);margin:0 0 10px;letter-spacing:-.04em}.welcome p{color:var(--muted);line-height:1.65;margin:0 auto;max-width:560px}
+    .suggestions{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:28px}.suggestions button{border:1px solid var(--line);background:linear-gradient(145deg,rgba(17,31,52,.82),rgba(11,22,38,.82));color:#dbe8f8;border-radius:16px;padding:16px;text-align:left;min-height:88px;transition:.2s}.suggestions button:hover{transform:translateY(-2px);border-color:#3b577c}.suggestions b{display:block;font-size:13px;margin-bottom:6px}.suggestions span{font-size:12px;color:var(--muted);line-height:1.45}
+    .messages{display:grid;gap:20px}.msg{display:flex;gap:12px;animation:up .25s ease}.msg.user{justify-content:flex-end}.avatar{width:32px;height:32px;border-radius:11px;background:linear-gradient(145deg,var(--mint),var(--blue));color:#06111d;display:grid;place-items:center;font-weight:900;flex:0 0 auto}.bubble{max-width:78%;background:var(--panel);border:1px solid var(--line);border-radius:5px 18px 18px 18px;padding:14px 16px;line-height:1.7;font-size:14px;white-space:pre-wrap;word-break:break-word}.user .bubble{background:linear-gradient(135deg,#3578db,#7157c9);border:0;border-radius:18px 5px 18px 18px;color:white}.meta{font-size:10px;color:#6f849f;margin-top:7px}.actions{display:flex;gap:5px;margin-top:8px}.actions button{border:0;background:transparent;color:#7287a4;padding:3px 6px;font-size:11px}.actions button:hover{color:var(--mint)}
+    .thinking span{display:inline-block;width:6px;height:6px;background:#7390b3;border-radius:50%;margin:0 3px;animation:bop 1s infinite}.thinking span:nth-child(2){animation-delay:.16s}.thinking span:nth-child(3){animation-delay:.32s}
+    .composer-wrap{flex:0 0 auto;padding:12px max(18px,calc((100% - 900px)/2)) max(16px,env(safe-area-inset-bottom));background:linear-gradient(transparent,rgba(7,16,29,.96) 22%)}.composer{border:1px solid #28405f;background:rgba(13,24,41,.95);box-shadow:var(--shadow);border-radius:20px;padding:8px;transition:.2s}.composer:focus-within{border-color:#4c719f;box-shadow:0 18px 65px rgba(0,0,0,.38),0 0 0 3px rgba(103,168,255,.06)}
+    textarea{display:block;width:100%;height:54px;max-height:150px;resize:none;border:0;outline:0;background:transparent;color:white;padding:10px 11px;line-height:1.5}.tools{display:flex;align-items:center;gap:6px}.tool{border:0;background:transparent;color:#8296b1;border-radius:10px;padding:8px}.tool:hover{background:#152640;color:white}.send{margin-left:auto;border:0;width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,var(--mint),var(--blue));color:#05101c;font-size:17px;font-weight:900}.hint{color:#5f738f;text-align:center;font-size:10px;margin-top:8px}
+    .drawer-overlay{display:none}.toast{position:fixed;left:50%;bottom:105px;transform:translate(-50%,20px);background:#dffcf3;color:#092119;padding:9px 14px;border-radius:999px;font-size:12px;font-weight:700;opacity:0;pointer-events:none;transition:.25s;z-index:20}.toast.show{opacity:1;transform:translate(-50%,0)}
+    dialog{border:1px solid var(--line);border-radius:20px;background:#0d192a;color:white;padding:0;max-width:480px;width:calc(100% - 32px);box-shadow:var(--shadow)}dialog::backdrop{background:rgba(0,0,0,.65);backdrop-filter:blur(4px)}.modal{padding:22px}.modal h2{margin:0 0 7px}.modal p{margin:0 0 18px;color:var(--muted);font-size:13px;line-height:1.55}.field{display:grid;gap:7px;margin:14px 0}.field label{font-size:12px;color:#9badc5}.field input,.field select{background:#091421;border:1px solid var(--line);color:white;padding:11px;border-radius:11px;outline:none}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}.primary{border:0;background:var(--mint);color:#06130f;font-weight:800;border-radius:10px;padding:10px 14px}
+    @keyframes up{from{opacity:0;transform:translateY(8px)}}@keyframes bop{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+    @media(max-width:760px){.app{display:block}.side{position:fixed;z-index:30;inset:0 auto 0 0;width:280px;transform:translateX(-102%);transition:.25s;box-shadow:30px 0 80px rgba(0,0,0,.5)}.side.open{transform:none}.drawer-overlay{display:block;position:fixed;z-index:25;inset:0;background:rgba(0,0,0,.55);opacity:0;pointer-events:none;transition:.25s}.drawer-overlay.open{opacity:1;pointer-events:auto}.menu{display:block}.top{height:62px;padding:0 14px}.top .tag{display:none}.mode{max-width:115px;font-size:12px}.chat{padding:20px 14px}.welcome{padding-top:5vh}.suggestions{grid-template-columns:1fr}.suggestions button{min-height:0}.bubble{max-width:88%}.composer-wrap{padding-left:10px;padding-right:10px}.hint{display:none}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside class="side" id="side">
+    <div class="brand"><div class="logo"></div><div><strong>온새미 AI</strong><small>생각을 온전히, 새롭게</small></div></div>
+    <button class="new" id="newChat">＋ 새 대화 시작</button>
+    <div class="label">최근 대화</div><div class="history" id="history"></div>
+    <div class="side-foot"><button class="ghost" id="exportBtn">대화 내보내기</button><button class="ghost" id="settingBtn">나의 AI 설정</button><div class="status"><i></i> 로컬 엔진 정상 작동 중</div></div>
+  </aside>
+  <div class="drawer-overlay" id="overlay"></div>
+  <main class="main">
+    <header class="top"><button class="menu" id="menu">☰</button><div class="title">생각 대화</div><span class="tag">개인정보 보호 모드</span><div class="spacer"></div><select class="mode" id="mode"><option value="insight">깊은 통찰</option><option value="creative">창의 확장</option><option value="brief">핵심 요약</option><option value="coach">실행 코치</option></select></header>
+    <section class="chat" id="chat">
+      <div class="welcome" id="welcome"><div class="orb"></div><h1>무엇을 함께 생각해 볼까요?</h1><p>온새미는 답만 내놓기보다 질문의 맥락을 읽고,<br>당신만의 다음 생각을 설계하는 AI 동반자입니다.</p><div class="suggestions"><button data-q="복잡한 고민을 명확하게 정리하는 프레임을 만들어줘"><b>◫ 생각 정리</b><span>복잡한 고민을 구조화해요</span></button><button data-q="평범하지 않은 새로운 서비스 아이디어 5개를 제안해줘"><b>✦ 아이디어 발화</b><span>새로운 관점을 확장해요</span></button><button data-q="이번 주 목표를 현실적인 실행 계획으로 바꿔줘"><b>✓ 실행 설계</b><span>목표를 작은 행동으로 바꿔요</span></button></div></div>
+      <div class="messages" id="messages"></div>
+    </section>
+    <div class="composer-wrap"><div class="composer"><textarea id="input" placeholder="온새미에게 무엇이든 물어보세요…" aria-label="메시지"></textarea><div class="tools"><button class="tool" id="clearBtn" title="입력 지우기">⌫</button><button class="tool" id="promptBtn" title="질문 다듬기">✦ 질문 다듬기</button><button class="send" id="send" aria-label="전송">↑</button></div></div><div class="hint">Enter로 전송 · Shift + Enter로 줄바꿈 · 대화는 이 기기에만 저장됩니다</div></div>
+  </main>
+</div>
+<div class="toast" id="toast">복사했어요</div>
+<dialog id="settings"><div class="modal"><h2>나의 AI 설정</h2><p>온새미가 당신에게 맞는 어조와 호칭으로 대화하도록 설정하세요.</p><div class="field"><label>나를 부를 이름</label><input id="userName" placeholder="예: 지민" maxlength="20"></div><div class="field"><label>선호하는 답변 길이</label><select id="answerLength"><option value="short">간결하게</option><option value="normal">적당히</option><option value="long">자세하게</option></select></div><div class="modal-actions"><button class="ghost" id="closeSetting">취소</button><button class="primary" id="saveSetting">저장하기</button></div></div></dialog>
+<script>
+(()=>{
+  const $=s=>document.querySelector(s), chat=$('#chat'), messages=$('#messages'), welcome=$('#welcome'), input=$('#input'), mode=$('#mode');
+  let state=JSON.parse(localStorage.getItem('onsaemi-state')||'null')||{chats:[],current:null,prefs:{name:'',length:'normal'}};
+  const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+  function save(){localStorage.setItem('onsaemi-state',JSON.stringify(state)); renderHistory()}
+  function current(){return state.chats.find(c=>c.id===state.current)}
+  function newChat(){const c={id:uid(),title:'새로운 생각',created:Date.now(),msgs:[]};state.chats.unshift(c);state.current=c.id;save();render();closeSide();input.focus()}
+  function renderHistory(){const h=$('#history');h.innerHTML='';state.chats.slice(0,10).forEach(c=>{const b=document.createElement('button');b.textContent='◌  '+c.title;b.className=c.id===state.current?'active':'';b.onclick=()=>{state.current=c.id;save();render();closeSide()};h.appendChild(b)});if(!state.chats.length)h.innerHTML='<div style="color:#607590;font-size:12px;padding:8px">아직 대화가 없어요.</div>'}
+  function esc(s){return s.replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]))}
+  function render(){const c=current();messages.innerHTML='';const has=c&&c.msgs.length;welcome.style.display=has?'none':'block';if(has)c.msgs.forEach(m=>addBubble(m.role,m.text,false,m.time));chat.scrollTop=chat.scrollHeight}
+  function addBubble(role,text,animate=true,time=Date.now()){
+    const row=document.createElement('div');row.className='msg '+role;if(!animate)row.style.animation='none';
+    if(role==='assistant'){const av=document.createElement('div');av.className='avatar';av.textContent='✦';row.appendChild(av)}
+    const b=document.createElement('div');b.className='bubble';b.innerHTML=esc(text);if(role==='assistant'){const meta=document.createElement('div');meta.className='meta';meta.textContent='온새미 · '+new Date(time).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});const acts=document.createElement('div');acts.className='actions';const cp=document.createElement('button');cp.textContent='복사';cp.onclick=()=>{navigator.clipboard?.writeText(text);toast('복사했어요')};acts.append(cp);b.append(meta,acts)}row.appendChild(b);messages.appendChild(row);chat.scrollTop=chat.scrollHeight;return row
+  }
+  function response(q){
+    const name=state.prefs.name?state.prefs.name+'님, ':'';const m=mode.value;const clean=q.trim();let body='';
+    const goal=/목표|계획|실행|습관|이번 주/.test(clean), idea=/아이디어|창의|서비스|사업|콘텐츠/.test(clean), worry=/고민|불안|어려|복잡|결정/.test(clean), summary=/요약|정리|핵심/.test(clean);
+    if(goal) body=`${name}좋아요. 이 목표를 “의지”가 아니라 “작동하는 구조”로 바꿔볼게요.\n\n1. 결과 정의 — 완료된 모습을 한 문장으로 적기\n2. 최소 행동 — 오늘 15분 안에 가능한 첫 단계 고르기\n3. 실행 신호 — 언제·어디서 시작할지 정하기\n4. 점검 기준 — 주말에 결과보다 반복 횟수 확인하기\n\n오늘의 첫 행동: 필요한 자료를 하나 열고, 15분 타이머를 시작하세요. 완벽한 시작보다 다시 하기 쉬운 시작이 중요합니다.`;
+    else if(idea) body=`${name}익숙한 답을 피하기 위해 관점을 바꿔 확장해 봤어요.\n\n• 반대로 만들기: 사용자가 하는 일을 AI가 아니라 다른 사용자가 돕게 하기\n• 작게 만들기: 모든 기능 대신 가장 답답한 5분만 해결하기\n• 결합하기: 기록 + 게임, 학습 + 산책, 커뮤니티 + 익명 회고\n• 흔적 활용하기: 사용 후 남는 데이터를 다음 행동의 추천으로 바꾸기\n• 느리게 만들기: 즉시성 대신 하루 한 번 깊은 선택을 돕기\n\n가장 독자적인 방향은 “답을 주는 서비스”보다 “사용자의 판단력이 자라는 서비스”입니다.`;
+    else if(worry) body=`${name}지금은 답을 서두르기보다 고민의 층을 나누는 게 먼저예요.\n\n[사실] 이미 확인된 것은 무엇인가요?\n[해석] 내가 사실처럼 믿고 있는 추측은 무엇인가요?\n[욕구] 이 선택에서 꼭 지키고 싶은 것은 무엇인가요?\n[행동] 되돌릴 수 있는 가장 작은 실험은 무엇인가요?\n\n좋은 결정은 확신이 생긴 뒤 움직이는 것이 아니라, 작은 실험으로 불확실성을 줄이는 과정일 수 있어요.`;
+    else if(summary) body=`${name}핵심을 세 층으로 정리해볼게요.\n\n• 한 문장: 질문의 중심은 “무엇을 남기고 무엇을 덜어낼지”입니다.\n• 중요한 기준: 목적, 대상, 제약 조건을 먼저 분리하세요.\n• 다음 행동: 가장 중요한 기준 하나를 골라 초안을 만들고 비교해 보세요.\n\n정리할 원문이나 구체적인 조건을 붙여주면 더 정확한 구조로 바꿀 수 있어요.`;
+    else body=`${name}이 질문을 조금 다른 각도에서 바라볼게요.\n\n먼저 원하는 결과를 한 문장으로 정의하고, 현재 가진 조건과 바꿀 수 없는 제약을 분리해 보세요. 그다음 “정답은 무엇인가?”보다 “어떤 작은 시도로 가장 많이 배울 수 있는가?”를 묻는 편이 유용합니다.\n\n제가 제안하는 다음 단계는 세 가지예요.\n1. 성공의 기준을 하나 정하기\n2. 가장 큰 가정을 하나 찾기\n3. 그 가정을 오늘 검증할 작은 행동 만들기`;
+    if(m==='brief') body=body.split('\n\n').slice(0,2).join('\n\n');
+    if(m==='creative') body+='\n\n✦ 확장 질문: 이 문제를 전혀 다른 분야의 전문가라면 어떻게 풀까요?';
+    if(m==='coach') body+='\n\n지금 바로 할 일: 10분 타이머를 켜고 첫 단계만 시작해 보세요.';
+    if(state.prefs.length==='short') body=body.split('\n\n').slice(0,2).join('\n\n');
+    if(state.prefs.length==='long') body+='\n\n마지막으로, 한 번에 완성하려 하지 말고 첫 결과를 관찰한 뒤 기준을 조정하세요. 좋은 사고는 고정된 답보다 더 나은 다음 질문을 남깁니다.';
+    return body
+  }
+  function send(){const q=input.value.trim();if(!q)return;let c=current();if(!c){newChat();c=current()}if(!c.msgs.length)c.title=q.slice(0,22)+(q.length>22?'…':'');c.msgs.push({role:'user',text:q,time:Date.now()});welcome.style.display='none';addBubble('user',q);input.value='';resize();save();
+    const think=document.createElement('div');think.className='msg';think.innerHTML='<div class="avatar">✦</div><div class="bubble thinking"><span></span><span></span><span></span></div>';messages.appendChild(think);chat.scrollTop=chat.scrollHeight;
+    setTimeout(()=>{think.remove();const text=response(q);c.msgs.push({role:'assistant',text,time:Date.now()});addBubble('assistant',text);save()},650+Math.random()*450)
+  }
+  function resize(){input.style.height='54px';input.style.height=Math.min(input.scrollHeight,150)+'px'}
+  function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),1600)}
+  function closeSide(){$('#side').classList.remove('open');$('#overlay').classList.remove('open')}
+  $('#send').onclick=send;input.addEventListener('input',resize);input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}});
+  document.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>{input.value=b.dataset.q;send()});
+  $('#newChat').onclick=newChat;$('#clearBtn').onclick=()=>{input.value='';resize();input.focus()};
+  $('#promptBtn').onclick=()=>{const q=input.value.trim();if(!q){input.value='내 상황과 목표를 고려해서, 실행 가능한 단계와 주의할 점까지 구체적으로 알려줘.'}else input.value=`${q}\n\n내 상황을 고려해 핵심 원리, 실행 단계, 예상되는 어려움까지 구조적으로 답해줘.`;resize();input.focus();toast('질문을 더 선명하게 다듬었어요')};
+  $('#menu').onclick=()=>{$('#side').classList.add('open');$('#overlay').classList.add('open')};$('#overlay').onclick=closeSide;
+  $('#settingBtn').onclick=()=>{$('#userName').value=state.prefs.name;$('#answerLength').value=state.prefs.length;$('#settings').showModal()};$('#closeSetting').onclick=()=>$('#settings').close();$('#saveSetting').onclick=()=>{state.prefs={name:$('#userName').value.trim(),length:$('#answerLength').value};save();$('#settings').close();toast('설정을 저장했어요')};
+  $('#exportBtn').onclick=()=>{const c=current();if(!c||!c.msgs.length)return toast('내보낼 대화가 없어요');const text=c.title+'\n\n'+c.msgs.map(m=>(m.role==='user'?'나':'온새미')+': '+m.text).join('\n\n');const blob=new Blob([text],{type:'text/plain;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='온새미-'+c.title.replace(/[^가-힣a-zA-Z0-9]/g,'-')+'.txt';a.click();URL.revokeObjectURL(a.href);toast('대화를 저장했어요')};
+  if(!state.chats.length)newChat();else{if(!state.current)state.current=state.chats[0].id;renderHistory();render()}
+})();
+</script>
+</body>
+</html>
