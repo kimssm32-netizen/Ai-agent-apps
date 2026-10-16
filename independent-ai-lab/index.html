@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#07130f" />
+  <title>씨앗AI — 독립형 인공지능</title>
+  <style>
+    :root{--bg:#07130f;--panel:#0d1d17;--panel2:#12271e;--line:#214132;--text:#eef9f2;--muted:#94b3a2;--mint:#62f2ae;--mint2:#22c77b;--yellow:#ffd66b;--red:#ff7c7c;--shadow:0 18px 50px rgba(0,0,0,.32)}
+    *{box-sizing:border-box} html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Pretendard","Noto Sans KR",sans-serif} body{overflow-x:hidden}
+    button,input,textarea{font:inherit} button{color:inherit} .app{min-height:100dvh;display:flex;flex-direction:column;max-width:1120px;margin:auto}
+    header{height:68px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);background:rgba(7,19,15,.9);position:sticky;top:0;z-index:20;backdrop-filter:blur(14px)}
+    .brand{display:flex;align-items:center;gap:11px;font-weight:900;letter-spacing:-.5px}.logo{width:39px;height:39px;border-radius:13px;background:linear-gradient(145deg,var(--mint),#1c9f67);display:grid;place-items:center;color:#062015;box-shadow:0 0 24px rgba(98,242,174,.22)}
+    .brand small{display:block;color:var(--muted);font-size:10px;font-weight:600;letter-spacing:.4px;margin-top:1px}.status{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:12px}.dot{width:8px;height:8px;border-radius:50%;background:var(--mint);box-shadow:0 0 10px var(--mint)}
+    main{flex:1;display:grid;grid-template-columns:230px 1fr;min-height:calc(100dvh - 68px)} aside{padding:22px 14px;border-right:1px solid var(--line)}
+    .nav{display:flex;flex-direction:column;gap:8px}.nav button{border:0;background:transparent;text-align:left;padding:13px 15px;border-radius:13px;color:var(--muted);font-weight:750;cursor:pointer;display:flex;gap:10px;align-items:center}.nav button.active{background:var(--panel2);color:var(--mint)}.nav button:hover{background:var(--panel)}
+    .side-card{margin-top:25px;padding:15px;border-radius:16px;background:linear-gradient(150deg,var(--panel2),var(--panel));border:1px solid var(--line)}.side-card b{font-size:12px}.meter{height:7px;background:#07130f;border-radius:9px;margin:10px 0 7px;overflow:hidden}.meter i{display:block;width:40%;height:100%;background:linear-gradient(90deg,var(--mint2),var(--mint));border-radius:9px}.side-card p{margin:0;color:var(--muted);font-size:11px;line-height:1.5}
+    .content{min-width:0;position:relative}.view{display:none;height:100%;padding:28px}.view.active{display:flex;flex-direction:column}.title{margin:0 0 5px;font-size:26px;letter-spacing:-1px}.sub{margin:0 0 22px;color:var(--muted);font-size:13px;line-height:1.55}
+    #chatView{padding-bottom:0}.chat-head{display:flex;justify-content:space-between;align-items:flex-start}.clear{border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:8px 11px;color:var(--muted);font-size:12px;cursor:pointer}.messages{flex:1;overflow:auto;padding:10px 3px 155px;scroll-behavior:smooth}.msg{display:flex;gap:10px;margin:14px 0;align-items:flex-start}.msg.user{justify-content:flex-end}.avatar{flex:none;width:32px;height:32px;border-radius:10px;background:var(--panel2);display:grid;place-items:center;font-size:15px}.bubble{max-width:min(78%,610px);padding:12px 14px;border-radius:5px 16px 16px 16px;background:var(--panel2);border:1px solid var(--line);line-height:1.62;font-size:14px;white-space:pre-wrap}.user .bubble{background:var(--mint);border-color:var(--mint);color:#062015;border-radius:16px 5px 16px 16px;font-weight:650}.meta{font-size:10px;color:var(--muted);margin-top:6px}.feedback{display:flex;gap:5px;margin-top:8px}.feedback button{border:1px solid var(--line);background:#0a1812;border-radius:8px;padding:4px 8px;font-size:11px;cursor:pointer;color:var(--muted)}
+    .composer-wrap{position:absolute;bottom:0;left:0;right:0;padding:20px 28px 24px;background:linear-gradient(transparent,var(--bg) 28%)}.suggests{display:flex;gap:7px;overflow:auto;padding:18px 0 8px}.suggests button{white-space:nowrap;border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:7px 11px;color:var(--muted);font-size:11px;cursor:pointer}.composer{display:flex;gap:9px;padding:8px;background:var(--panel);border:1px solid var(--line);border-radius:17px;box-shadow:var(--shadow)}.composer input{flex:1;min-width:0;background:transparent;border:0;outline:0;color:var(--text);padding:8px}.composer input::placeholder{color:#62806f}.send{border:0;background:var(--mint);color:#062015;width:42px;border-radius:12px;font-weight:900;cursor:pointer}.send:active{transform:scale(.96)}
+    .cards{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.card{padding:19px;background:var(--panel);border:1px solid var(--line);border-radius:18px}.card h3{margin:0 0 8px;font-size:15px}.card p,.hint{color:var(--muted);font-size:12px;line-height:1.6}.field{margin-top:12px}.field label{font-size:11px;color:var(--muted);display:block;margin-bottom:6px}.field input,.field textarea{width:100%;border:1px solid var(--line);background:#081610;color:var(--text);border-radius:11px;padding:11px;outline:none}.field textarea{min-height:86px;resize:vertical}.field input:focus,.field textarea:focus{border-color:var(--mint2)}.primary{border:0;background:var(--mint);color:#062015;padding:11px 15px;border-radius:11px;font-weight:850;cursor:pointer;margin-top:11px}.secondary{border:1px solid var(--line);background:var(--panel2);padding:10px 13px;border-radius:11px;cursor:pointer}.list{margin-top:15px;max-height:260px;overflow:auto}.item{padding:11px 4px;border-bottom:1px solid var(--line);font-size:12px}.item b{color:var(--mint)}
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-bottom:16px}.stat{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:15px}.stat strong{display:block;font-size:25px;color:var(--mint)}.stat span{font-size:11px;color:var(--muted)}
+    .draw-grid{display:grid;grid-template-columns:1fr 290px;gap:16px;align-items:start}canvas{width:100%;aspect-ratio:1/1;background:#f0f4e8;border-radius:18px;display:block}.draw-controls{background:var(--panel);border:1px solid var(--line);padding:17px;border-radius:18px}.row{display:flex;gap:8px}.row>*{flex:1}.palette{display:flex;gap:8px;margin:10px 0}.swatch{width:27px;height:27px;border-radius:50%;border:2px solid transparent;cursor:pointer}.swatch.on{border-color:white;transform:scale(1.1)}
+    .about-box{max-width:720px;background:var(--panel);border:1px solid var(--line);padding:22px;border-radius:19px;line-height:1.75;color:#c9ded2;font-size:14px}.about-box strong{color:var(--mint)}.flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:18px 0}.flow span{background:var(--panel2);border:1px solid var(--line);padding:9px 12px;border-radius:10px;font-size:12px}.flow i{color:var(--mint);font-style:normal}.toast{position:fixed;bottom:25px;left:50%;transform:translate(-50%,30px);background:var(--text);color:#092017;padding:10px 16px;border-radius:11px;font-size:12px;font-weight:750;opacity:0;pointer-events:none;transition:.25s;z-index:99}.toast.show{opacity:1;transform:translate(-50%,0)}
+    @media(max-width:720px){header{height:61px;padding:0 14px}.status span{display:none}main{display:block;min-height:calc(100dvh - 61px)}aside{position:fixed;z-index:30;bottom:0;left:0;right:0;height:64px;border:0;border-top:1px solid var(--line);background:rgba(7,19,15,.96);padding:6px 8px;backdrop-filter:blur(12px)}.nav{flex-direction:row;justify-content:space-around}.nav button{padding:7px 9px;flex-direction:column;gap:2px;font-size:9px}.nav button span:first-child{font-size:17px}.side-card{display:none}.content{height:calc(100dvh - 61px - 64px)}.view{padding:18px 14px 80px;overflow:auto}.title{font-size:22px}.sub{margin-bottom:14px}.messages{padding-bottom:140px}.composer-wrap{padding:10px 14px 12px;bottom:64px;position:fixed}.cards,.draw-grid{grid-template-columns:1fr}.stats{grid-template-columns:repeat(3,1fr)}.stat{padding:11px}.stat strong{font-size:20px}.bubble{max-width:86%}#trainView,#drawView,#aboutView{padding-bottom:90px}}
+  </style>
+</head>
+<body>
+<div class="app">
+<header><div class="brand"><div class="logo">✦</div><div>씨앗AI<small>INDEPENDENT LOCAL INTELLIGENCE</small></div></div><div class="status"><i class="dot"></i><span>내 기기에서 작동 중</span></div></header>
+<main>
+  <aside><nav class="nav">
+    <button class="active" data-view="chatView"><span>💬</span><span>대화</span></button>
+    <button data-view="trainView"><span>🌱</span><span>학습</span></button>
+    <button data-view="drawView"><span>🎨</span><span>그림</span></button>
+    <button data-view="aboutView"><span>🧠</span><span>작동 원리</span></button>
+  </nav><div class="side-card"><b>학습 성장도</b><div class="meter"><i id="meter"></i></div><p id="growthText">기본 지식을 갖고 있어요.<br>가르칠수록 더 똑똑해져요.</p></div></aside>
+  <section class="content">
+    <div class="view active" id="chatView">
+      <div class="chat-head"><div><h1 class="title">무엇이든 물어보세요</h1><p class="sub">외부 AI 없이, 규칙·기억·유사도 학습으로 답해요.</p></div><button class="clear" id="clearChat">대화 지우기</button></div>
+      <div class="messages" id="messages"></div>
+      <div class="composer-wrap"><div class="suggests"><button>안녕, 넌 누구야?</button><button>12 × 8 + 4 계산해줘</button><button>고양이는 뭐야?</button><button>오늘 기분이 좋아</button></div><form class="composer" id="chatForm"><input id="chatInput" autocomplete="off" placeholder="메시지를 입력하세요…" /><button class="send" aria-label="전송">↑</button></form></div>
+    </div>
+    <div class="view" id="trainView">
+      <h1 class="title">직접 가르치기</h1><p class="sub">질문과 좋은 답을 알려주면 기기에 저장하고 다음 대화부터 활용해요.</p>
+      <div class="stats"><div class="stat"><strong id="learnCount">0</strong><span>배운 문답</span></div><div class="stat"><strong id="wordCount">0</strong><span>아는 낱말</span></div><div class="stat"><strong id="chatCount">0</strong><span>대화 횟수</span></div></div>
+      <div class="cards"><div class="card"><h3>새로운 문답 학습</h3><p>표현이 조금 달라도 낱말 유사도를 비교해 가장 가까운 답을 찾아요.</p><form id="teachForm"><div class="field"><label>이런 질문을 받으면</label><input id="teachQ" required placeholder="예: 네가 좋아하는 색은?" /></div><div class="field"><label>이렇게 대답해</label><textarea id="teachA" required placeholder="예: 나는 새싹을 닮은 초록색이 좋아!" ></textarea></div><button class="primary">학습시키기</button></form></div>
+      <div class="card"><h3>배운 기억</h3><p>모든 내용은 서버가 아닌 현재 브라우저에만 저장됩니다.</p><div class="list" id="memoryList"></div><button class="secondary" id="resetLearn">학습 기억 초기화</button></div></div>
+    </div>
+    <div class="view" id="drawView">
+      <h1 class="title">생각을 그림으로</h1><p class="sub">문장을 숫자 씨앗으로 바꾼 뒤, 자체 생성 규칙으로 매번 고유한 추상화를 그려요.</p>
+      <div class="draw-grid"><canvas id="art" width="700" height="700"></canvas><div class="draw-controls"><h3 style="margin-top:0">그림 씨앗</h3><div class="field"><label>그리고 싶은 느낌이나 장면</label><textarea id="drawPrompt" placeholder="예: 달빛 아래 춤추는 초록 숲">꿈꾸는 우주 정원</textarea></div><label class="hint">주요 색상</label><div class="palette"><button class="swatch on" style="background:#58e6a8" data-color="#58e6a8"></button><button class="swatch" style="background:#7f8cff" data-color="#7f8cff"></button><button class="swatch" style="background:#ff8b91" data-color="#ff8b91"></button><button class="swatch" style="background:#ffc857" data-color="#ffc857"></button></div><button class="primary" id="generateArt">그림 생성</button> <button class="secondary" id="saveArt">저장</button><p class="hint">같은 문장과 색은 같은 구성을 만들어요. 이미지 모델이나 외부 서버를 사용하지 않습니다.</p></div></div>
+    </div>
+    <div class="view" id="aboutView">
+      <h1 class="title">씨앗AI는 어떻게 생각할까요?</h1><p class="sub">거대 언어 모델 없이 브라우저 안에서 직접 구현한 작은 인공지능입니다.</p>
+      <div class="about-box"><strong>씨앗AI의 정의</strong><br>정보를 보고 배우고, 배운 내용을 바탕으로 질문에 답하거나 그림을 만드는 소프트웨어예요.
+        <div class="flow"><span>① 문장 정리</span><i>→</i><span>② 의미 단서 추출</span><i>→</i><span>③ 기억과 비교</span><i>→</i><span>④ 답 생성</span></div>
+        <strong>독립적인 핵심 기술</strong><ul><li><b>유사도 학습:</b> 사용자가 가르친 문답을 낱말 벡터로 바꾸고 코사인 유사도로 비교합니다.</li><li><b>기억:</b> “A는 B야” 같은 정보를 찾아 로컬 저장소에 기억합니다.</li><li><b>추론 도구:</b> 안전한 사칙연산, 시간, 감정 단서, 문맥 규칙을 조합합니다.</li><li><b>생성 그림:</b> 텍스트 해시와 의사 난수 알고리즘으로 도형·색·구도를 직접 만듭니다.</li></ul>
+        <p style="color:var(--yellow)">※ 이 앱은 학습 가능한 소형 규칙 기반 AI입니다. 대규모 서버형 AI만큼 폭넓은 지식은 없지만, 외부 API나 OpenAI·Anthropic 제품을 전혀 사용하지 않습니다.</p>
+      </div>
+    </div>
+  </section>
+</main></div><div class="toast" id="toast"></div>
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const store={learned:JSON.parse(localStorage.getItem('seed_learned')||'[]'),facts:JSON.parse(localStorage.getItem('seed_facts')||'{}'),chats:+localStorage.getItem('seed_chats')||0};
+const base=[
+ {q:'안녕 반가워 인사',a:'안녕하세요! 나는 씨앗AI예요. 이 브라우저 안에서 스스로 기억하고 비교하며 답을 찾아요. 🌱'},
+ {q:'너 누구 정체 소개 이름',a:'나는 씨앗AI예요. 외부 AI API 없이 만들어진 작은 독립형 인공지능이에요.'},
+ {q:'인공지능 AI 무엇 정의',a:'AI는 정보를 보고 배우고, 배운 내용을 활용해 문제를 풀거나 새로운 결과를 만드는 컴퓨터의 똑똑한 머리예요.'},
+ {q:'고양이 뭐야 무엇',a:'고양이는 사람과 오래 함께 살아온 포유류예요. 민첩하고 호기심이 많으며, 골골거리는 소리로 감정을 표현하기도 해요.'},
+ {q:'강아지 개 뭐야',a:'강아지는 개의 어린 개체를 뜻해요. 사람과 교감하는 능력이 뛰어나고 후각이 매우 발달했어요.'},
+ {q:'날씨 어때',a:'나는 인터넷 날씨 정보에는 연결되어 있지 않아요. 창밖이나 날씨 앱을 확인해 주세요. 대신 날씨에 맞는 활동은 함께 생각할 수 있어요!'},
+ {q:'고마워 감사',a:'도움이 되었다니 나도 기뻐요! 배움의 씨앗이 하나 더 자란 기분이에요. 🌿'},
+ {q:'무엇 할 수 있어 기능',a:'대화하고, 사칙연산을 풀고, “A는 B야”라는 사실을 기억하고, 직접 가르친 문답을 학습하고, 문장으로 추상 그림도 만들 수 있어요.'},
+ {q:'기분 우울 슬퍼 힘들어',a:'그런 마음을 말해줘서 고마워요. 잠깐 천천히 숨을 쉬고, 믿을 수 있는 사람에게 지금 마음을 나눠보는 건 어떨까요? 나는 여기서 계속 들어줄게요.'},
+ {q:'기분 좋아 행복 신나',a:'좋은 기분이 문장에서도 느껴져요! 오늘 무엇이 가장 즐거웠는지 기억해 두면 힘든 날에도 작은 힘이 될 거예요. ✨'}
+];
+function save(){localStorage.setItem('seed_learned',JSON.stringify(store.learned));localStorage.setItem('seed_facts',JSON.stringify(store.facts));localStorage.setItem('seed_chats',store.chats)}
+function tokens(s){return (s.toLowerCase().replace(/[^가-힣a-z0-9\s]/g,' ').match(/[가-힣]{1,}|[a-z]{2,}|\d+/g)||[]).flatMap(w=>{let a=[w];if(w.length>=3)for(let i=0;i<w.length-1;i++)a.push(w.slice(i,i+2));return a})}
+function similarity(a,b){let A=tokens(a),B=tokens(b),ma={},mb={};A.forEach(x=>ma[x]=(ma[x]||0)+1);B.forEach(x=>mb[x]=(mb[x]||0)+1);let dot=0,aa=0,bb=0;Object.keys(ma).forEach(k=>{aa+=ma[k]**2;dot+=ma[k]*(mb[k]||0)});Object.values(mb).forEach(v=>bb+=v**2);return dot/(Math.sqrt(aa*bb)||1)}
+function safeCalc(text){let m=text.replace(/×/g,'*').replace(/÷/g,'/').match(/(?:\d+(?:\.\d+)?\s*[-+*/()%]\s*)+\d+(?:\.\d+)?/);if(!m)return null;let e=m[0];if(!/^[\d\s.+*/%()-]+$/.test(e))return null;try{let v=Function('"use strict";return ('+e+')')();return Number.isFinite(v)?`${e} = ${Math.round(v*1e8)/1e8}`:null}catch{return null}}
+function answer(text){
+ const calc=safeCalc(text);if(calc)return `계산해 보니 ${calc}예요.`;
+ let teach=text.match(/^(.+?)(?:은|는)\s+(.+?)(?:이야|야|입니다|이다)[.!]?$/);if(teach&&teach[1].length<25){store.facts[teach[1].trim()]=teach[2].trim();save();return `알겠어요. “${teach[1].trim()}”에 대해 기억했어요!`}
+ for(const [k,v] of Object.entries(store.facts)){if(text.includes(k)&&/(뭐|무엇|알려|기억)/.test(text))return `${k}${k.endsWith('은')||k.endsWith('는')?'':'은(는)'} ${v}라고 배웠어요.`}
+ if(/몇 시|시간/.test(text)){return `지금 기기 시간은 ${new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})}예요.`}
+ let pool=[...store.learned,...base],best={score:0};pool.forEach(x=>{let s=similarity(text,x.q);if(s>best.score)best={...x,score:s}});if(best.score>(store.learned.includes(best)?0.15:0.20))return best.a;
+ let key=tokens(text).filter(x=>x.length>1).slice(0,3).join(', ');return `“${key||text}”에 대해 아직 충분히 배우지 못했어요. 학습 메뉴에서 좋은 답을 가르쳐 주면 다음에는 기억해서 대답할게요.`
+}
+function addMsg(role,text){let d=document.createElement('div');d.className='msg '+role;if(role==='ai')d.innerHTML=`<div class="avatar">✦</div><div><div class="bubble"></div><div class="meta">씨앗AI · 자체 추론</div><div class="feedback"><button data-good>도움됐어요</button><button data-teach>다시 가르치기</button></div></div>`;else d.innerHTML=`<div class="bubble"></div>`;d.querySelector('.bubble').textContent=text;$('#messages').appendChild(d);$('#messages').scrollTop=$('#messages').scrollHeight;let t=d.querySelector('[data-teach]');if(t)t.onclick=()=>{$$('[data-view="trainView"]')[0].click();$('#teachQ').value=$('.msg.user:last-of-type .bubble')?.textContent||'';$('#teachA').focus()};let g=d.querySelector('[data-good]');if(g)g.onclick=()=>{g.textContent='기억할게요 ✓';g.disabled=true}}
+function welcome(){if(!$('#messages').children.length)addMsg('ai','안녕하세요! 나는 씨앗AI예요. 질문해도 좋고, 새로운 사실을 가르쳐도 좋아요. 예: “별이는 내 고양이야”')}
+$('#chatForm').onsubmit=e=>{e.preventDefault();let v=$('#chatInput').value.trim();if(!v)return;addMsg('user',v);$('#chatInput').value='';store.chats++;save();update();setTimeout(()=>addMsg('ai',answer(v)),280)};
+$$('.suggests button').forEach(b=>b.onclick=()=>{$('#chatInput').value=b.textContent;$('#chatForm').requestSubmit()});
+$('#clearChat').onclick=()=>{$('#messages').innerHTML='';welcome()};
+$$('.nav button').forEach(b=>b.onclick=()=>{$$('.nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');$$('.view').forEach(x=>x.classList.remove('active'));$('#'+b.dataset.view).classList.add('active');if(b.dataset.view==='drawView')drawArt()});
+$('#teachForm').onsubmit=e=>{e.preventDefault();let q=$('#teachQ').value.trim(),a=$('#teachA').value.trim();store.learned.unshift({q,a});save();e.target.reset();update();toast('새로운 답을 학습했어요 🌱')};
+$('#resetLearn').onclick=()=>{if(confirm('직접 가르친 내용을 모두 지울까요?')){store.learned=[];store.facts={};save();update();toast('학습 기억을 초기화했어요')}};
+function update(){let words=new Set([...base,...store.learned].flatMap(x=>tokens(x.q)));$('#learnCount').textContent=store.learned.length+Object.keys(store.facts).length;$('#wordCount').textContent=words.size;$('#chatCount').textContent=store.chats;let n=store.learned.length+Object.keys(store.facts).length;$('#meter').style.width=Math.min(100,35+n*6)+'%';$('#memoryList').innerHTML=store.learned.length||Object.keys(store.facts).length?[...store.learned.map(x=>`<div class="item"><b>Q.</b> ${esc(x.q)}<br><b>A.</b> ${esc(x.a)}</div>`),...Object.entries(store.facts).map(([k,v])=>`<div class="item"><b>기억.</b> ${esc(k)} → ${esc(v)}</div>`)].join(''):'<div class="item" style="color:var(--muted)">아직 직접 배운 기억이 없어요.</div>'}
+function esc(s){let d=document.createElement('div');d.textContent=s;return d.innerHTML}function toast(s){$('#toast').textContent=s;$('#toast').classList.add('show');setTimeout(()=>$('#toast').classList.remove('show'),1800)}
+let artColor='#58e6a8';$$('.swatch').forEach(s=>s.onclick=()=>{$$('.swatch').forEach(x=>x.classList.remove('on'));s.classList.add('on');artColor=s.dataset.color});
+function hash(s){let h=2166136261;for(let c of s){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0}function rng(seed){return()=>((seed=Math.imul(seed,1664525)+1013904223>>>0)/4294967296)}
+function drawArt(){let c=$('#art'),x=c.getContext('2d'),p=$('#drawPrompt').value||'씨앗',r=rng(hash(p+artColor));let grad=x.createLinearGradient(0,0,700,700);grad.addColorStop(0,'#eef4df');grad.addColorStop(1,'#b9d8c5');x.fillStyle=grad;x.fillRect(0,0,700,700);x.globalCompositeOperation='multiply';for(let i=0;i<34;i++){let px=r()*700,py=r()*700,sz=30+r()*170,rot=r()*Math.PI;x.save();x.translate(px,py);x.rotate(rot);x.globalAlpha=.18+r()*.5;x.fillStyle=i%3===0?artColor:(i%3===1?'#153f36':'#f7bf5d');x.beginPath();if(i%2){x.ellipse(0,0,sz,sz*(.15+r()*.65),0,0,Math.PI*2)}else{x.rect(-sz/2,-sz/2,sz,sz)}x.fill();x.restore()}x.globalCompositeOperation='source-over';x.globalAlpha=1;x.fillStyle='#0c2c22';x.font='700 25px system-ui';x.fillText(p.slice(0,22),38,640);x.font='14px system-ui';x.fillText('씨앗AI 생성 규칙 · '+hash(p+artColor).toString(16).toUpperCase(),40,670)}
+$('#generateArt').onclick=()=>{drawArt();toast('새 그림을 생성했어요')};$('#saveArt').onclick=()=>{let a=document.createElement('a');a.download='씨앗AI-그림.png';a.href=$('#art').toDataURL();a.click()};$('#drawPrompt').addEventListener('change',drawArt);
+update();welcome();drawArt();
+</script>
+</body>
+</html>
