@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <title>폭주 드론 방어전</title>
+  <style>
+    :root{--bg:#070b18;--panel:#10182b;--cyan:#51e5ff;--pink:#ff4d8d;--yellow:#ffd166;--text:#eef7ff}
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif;touch-action:none}
+    body{display:grid;place-items:center;background:radial-gradient(circle at 50% 15%,#172853 0,#080d1d 48%,#040711 100%)}
+    #app{position:relative;width:min(100vw,520px);height:100dvh;max-height:920px;overflow:hidden;background:#07101e;box-shadow:0 0 50px #000}
+    canvas{display:block;width:100%;height:100%}
+    .hud{position:absolute;z-index:3;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top) + 12px) 14px 0;display:flex;justify-content:space-between;pointer-events:none;font-weight:900;text-shadow:0 2px 7px #000}
+    .chip{background:#07101ecc;border:1px solid #ffffff2b;border-radius:14px;padding:8px 11px;backdrop-filter:blur(7px)}
+    .accent{color:var(--cyan)}
+    #combo{position:absolute;top:74px;left:50%;transform:translateX(-50%) scale(.8);opacity:0;color:var(--yellow);font-size:26px;font-weight:1000;text-shadow:0 0 15px #ff9f1c;transition:.16s;pointer-events:none}
+    #combo.show{opacity:1;transform:translateX(-50%) scale(1)}
+    .screen{position:absolute;z-index:10;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px;background:linear-gradient(#050a16d9,#07101ef2);backdrop-filter:blur(4px)}
+    .hidden{display:none}
+    h1{margin:0 0 12px;font-size:clamp(35px,10vw,54px);line-height:1.05;letter-spacing:-2px;background:linear-gradient(135deg,var(--cyan),#fff 48%,var(--pink));-webkit-background-clip:text;color:transparent;filter:drop-shadow(0 0 16px #51e5ff55)}
+    .tag{margin:0 0 28px;max-width:350px;color:#bed0e7;line-height:1.65;font-weight:650}
+    button{border:0;border-radius:18px;padding:16px 30px;font:900 18px inherit;color:#06101b;background:linear-gradient(135deg,var(--cyan),#b7f7ff);box-shadow:0 8px 25px #20bfe955;cursor:pointer;min-width:190px}
+    button:active{transform:translateY(2px) scale(.98)}
+    .how{margin-top:22px;font-size:13px;color:#91a5bd;line-height:1.7}
+    .result{font-size:20px;margin:5px 0 25px;color:#dcecff}.result b{color:var(--yellow);font-size:31px}
+    #flash{position:absolute;z-index:2;inset:0;pointer-events:none;background:#ff355e;opacity:0}
+    .footer{position:absolute;bottom:calc(env(safe-area-inset-bottom) + 10px);left:0;right:0;text-align:center;color:#ffffff55;font-size:11px;pointer-events:none}
+  </style>
+</head>
+<body>
+<div id="app">
+  <canvas id="game" aria-label="폭주 드론을 터치해 방어하는 게임"></canvas>
+  <div class="hud"><div class="chip">점수 <span id="score" class="accent">0</span></div><div class="chip">기지 <span id="hp">♥♥♥♥♥</span></div><div class="chip"><span id="time">60</span>초</div></div>
+  <div id="combo">COMBO ×2</div><div id="flash"></div>
+  <section id="start" class="screen">
+    <h1>폭주 드론<br>방어전</h1>
+    <p class="tag">도시 방어망을 뚫고 접근하는 폭주 드론을 무력화하세요. 빠르고 정확한 터치가 필요합니다!</p>
+    <button id="startBtn">방어 시작</button>
+    <div class="how">드론을 터치해 격추 · 민간 구조 캡슐은 터치 금지<br>60초 동안 기지를 지키면 승리!</div>
+  </section>
+  <section id="over" class="screen hidden">
+    <h1 id="overTitle">작전 종료</h1>
+    <p class="result">최종 점수<br><b id="finalScore">0</b></p>
+    <button id="retryBtn">다시 도전</button>
+  </section>
+  <div class="footer">폭력적 실존 인물 대신 가상의 폭주 기계를 상대하는 아케이드 게임입니다.</div>
+</div>
+<script>
+(()=>{
+'use strict';
+const app=document.querySelector('#app'),c=document.querySelector('#game'),x=c.getContext('2d');
+const $=s=>document.querySelector(s); let W,H,dpr,run=false,last=0,elapsed=0,spawn=0,score=0,hp=5,combo=0,comboT=0,shake=0,entities=[],parts=[],stars=[];
+function resize(){dpr=Math.min(devicePixelRatio||1,2);W=app.clientWidth;H=app.clientHeight;c.width=W*dpr;c.height=H*dpr;x.setTransform(dpr,0,0,dpr,0,0);stars=Array.from({length:70},()=>({x:Math.random()*W,y:Math.random()*H,s:Math.random()*1.7+.3}));}
+addEventListener('resize',resize);resize();
+function reset(){score=0;hp=5;elapsed=spawn=combo=comboT=0;entities=[];parts=[];run=true;last=performance.now();updateHud();$('#over').classList.add('hidden');requestAnimationFrame(loop)}
+function updateHud(){$('#score').textContent=score;$('#hp').textContent='♥'.repeat(Math.max(0,hp))+'♡'.repeat(Math.max(0,5-hp));$('#time').textContent=Math.max(0,Math.ceil(60-elapsed));}
+function makeEntity(){let rescue=Math.random()<.12;let r=rescue?19:18+Math.random()*12;entities.push({x:r+Math.random()*(W-r*2),y:-35,r,vy:75+Math.random()*75+elapsed*1.2,vx:(Math.random()-.5)*36,a:Math.random()*6.28,spin:(Math.random()-.5)*3,rescue,hp:(!rescue&&elapsed>35&&Math.random()<.18)?2:1});}
+function burst(e,color){for(let i=0;i<16;i++){let a=Math.random()*6.28,s=50+Math.random()*170;parts.push({x:e.x,y:e.y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:.4+Math.random()*.4,color})}}
+function hit(px,py){if(!run)return;for(let i=entities.length-1;i>=0;i--){let e=entities[i],dx=px-e.x,dy=py-e.y;if(dx*dx+dy*dy<(e.r+13)**2){if(e.rescue){score=Math.max(0,score-100);hp--;combo=0;burst(e,'#ff4d8d');shake=9;flash();entities.splice(i,1);if(hp<=0)end(false)}else{e.hp--;burst(e,e.hp?'#ffd166':'#51e5ff');if(e.hp<=0){combo++;comboT=1.5;score+=10+Math.min(combo,20)*2;entities.splice(i,1);showCombo()}else score+=5}updateHud();return}}}
+function coords(ev){let r=c.getBoundingClientRect(),p=ev.touches?ev.touches[0]:ev;return{x:(p.clientX-r.left)*W/r.width,y:(p.clientY-r.top)*H/r.height}}
+c.addEventListener('pointerdown',e=>{e.preventDefault();let p=coords(e);hit(p.x,p.y)});
+function flash(){let f=$('#flash');f.style.opacity=.28;setTimeout(()=>f.style.opacity=0,90)}
+function showCombo(){if(combo<2)return;let el=$('#combo');el.textContent='COMBO ×'+combo;el.classList.add('show');clearTimeout(showCombo.t);showCombo.t=setTimeout(()=>el.classList.remove('show'),500)}
+function end(win){run=false;$('#finalScore').textContent=score;$('#overTitle').textContent=win?'도시 방어 성공!':'기지 방어 실패';$('#over').classList.remove('hidden')}
+function drone(e){x.save();x.translate(e.x,e.y);x.rotate(e.a);if(e.rescue){x.shadowBlur=16;x.shadowColor='#63f59a';x.fillStyle='#bfffd4';x.beginPath();x.arc(0,0,e.r,0,7);x.fill();x.fillStyle='#138c55';x.fillRect(-5,-11,10,22);x.fillRect(-11,-5,22,10);x.strokeStyle='#fff';x.lineWidth=2;x.stroke();}else{x.shadowBlur=15;x.shadowColor=e.hp>1?'#ffd166':'#ff4d8d';x.fillStyle=e.hp>1?'#6a5522':'#40203b';x.strokeStyle=e.hp>1?'#ffd166':'#ff4d8d';x.lineWidth=3;x.beginPath();x.moveTo(-e.r,0);x.lineTo(-e.r*.45,-e.r*.55);x.lineTo(e.r*.45,-e.r*.55);x.lineTo(e.r,0);x.lineTo(e.r*.45,e.r*.55);x.lineTo(-e.r*.45,e.r*.55);x.closePath();x.fill();x.stroke();x.fillStyle='#ff315f';x.beginPath();x.arc(0,0,5,0,7);x.fill();x.strokeStyle='#9eefff';x.lineWidth=2;x.beginPath();x.moveTo(-e.r-7,-7);x.lineTo(-e.r-7,7);x.moveTo(e.r+7,-7);x.lineTo(e.r+7,7);x.stroke()}x.restore()}
+function draw(dt){x.save();if(shake){x.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake);shake*=.85}let g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,'#071329');g.addColorStop(1,'#0c1830');x.fillStyle=g;x.fillRect(-15,-15,W+30,H+30);x.fillStyle='#bceeff';for(let s of stars){s.y+=s.s*10*dt;if(s.y>H)s.y=0;x.globalAlpha=.25+s.s/3;x.fillRect(s.x,s.y,s.s,s.s)}x.globalAlpha=1;
+// city
+x.fillStyle='#0b2035';for(let i=0;i<W;i+=35){let bh=50+(i*17%85);x.fillRect(i,H-bh,30,bh);x.fillStyle='#51e5ff44';for(let yy=H-bh+12;yy<H-10;yy+=18)for(let xx=i+7;xx<i+27;xx+=12)x.fillRect(xx,yy,4,5);x.fillStyle='#0b2035'}
+x.strokeStyle='#51e5ff55';x.lineWidth=2;x.beginPath();x.arc(W/2,H+80,180,Math.PI,Math.PI*2);x.stroke();
+for(let e of entities)drone(e);for(let i=parts.length-1;i>=0;i--){let p=parts[i];p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=130*dt;p.life-=dt;x.globalAlpha=Math.max(0,p.life*1.7);x.fillStyle=p.color;x.fillRect(p.x,p.y,3,3);if(p.life<=0)parts.splice(i,1)}x.restore()}
+function loop(t){let dt=Math.min(.033,(t-last)/1000);last=t;if(run){elapsed+=dt;spawn-=dt;comboT-=dt;if(comboT<=0)combo=0;if(spawn<=0){makeEntity();spawn=Math.max(.22,.72-elapsed*.007)}for(let i=entities.length-1;i>=0;i--){let e=entities[i];e.y+=e.vy*dt;e.x+=e.vx*dt;e.a+=e.spin*dt;if(e.x<e.r||e.x>W-e.r)e.vx*=-1;if(e.y>H-55){if(!e.rescue){hp--;shake=12;flash()}entities.splice(i,1);updateHud();if(hp<=0){end(false);break}}}if(elapsed>=60)end(true)}draw(dt);if(run)requestAnimationFrame(loop)}
+$('#startBtn').onclick=()=>{$('#start').classList.add('hidden');reset()};$('#retryBtn').onclick=reset;draw(0);
+})();
+</script>
+</body>
+</html>
