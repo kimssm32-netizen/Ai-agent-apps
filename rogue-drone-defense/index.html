@@ -1,77 +1,74 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-  <title>폭주 드론 방어전</title>
-  <style>
-    :root{--bg:#070b18;--panel:#10182b;--cyan:#51e5ff;--pink:#ff4d8d;--yellow:#ffd166;--text:#eef7ff}
-    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-    html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif;touch-action:none}
-    body{display:grid;place-items:center;background:radial-gradient(circle at 50% 15%,#172853 0,#080d1d 48%,#040711 100%)}
-    #app{position:relative;width:min(100vw,520px);height:100dvh;max-height:920px;overflow:hidden;background:#07101e;box-shadow:0 0 50px #000}
-    canvas{display:block;width:100%;height:100%}
-    .hud{position:absolute;z-index:3;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top) + 12px) 14px 0;display:flex;justify-content:space-between;pointer-events:none;font-weight:900;text-shadow:0 2px 7px #000}
-    .chip{background:#07101ecc;border:1px solid #ffffff2b;border-radius:14px;padding:8px 11px;backdrop-filter:blur(7px)}
-    .accent{color:var(--cyan)}
-    #combo{position:absolute;top:74px;left:50%;transform:translateX(-50%) scale(.8);opacity:0;color:var(--yellow);font-size:26px;font-weight:1000;text-shadow:0 0 15px #ff9f1c;transition:.16s;pointer-events:none}
-    #combo.show{opacity:1;transform:translateX(-50%) scale(1)}
-    .screen{position:absolute;z-index:10;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px;background:linear-gradient(#050a16d9,#07101ef2);backdrop-filter:blur(4px)}
-    .hidden{display:none}
-    h1{margin:0 0 12px;font-size:clamp(35px,10vw,54px);line-height:1.05;letter-spacing:-2px;background:linear-gradient(135deg,var(--cyan),#fff 48%,var(--pink));-webkit-background-clip:text;color:transparent;filter:drop-shadow(0 0 16px #51e5ff55)}
-    .tag{margin:0 0 28px;max-width:350px;color:#bed0e7;line-height:1.65;font-weight:650}
-    button{border:0;border-radius:18px;padding:16px 30px;font:900 18px inherit;color:#06101b;background:linear-gradient(135deg,var(--cyan),#b7f7ff);box-shadow:0 8px 25px #20bfe955;cursor:pointer;min-width:190px}
-    button:active{transform:translateY(2px) scale(.98)}
-    .how{margin-top:22px;font-size:13px;color:#91a5bd;line-height:1.7}
-    .result{font-size:20px;margin:5px 0 25px;color:#dcecff}.result b{color:var(--yellow);font-size:31px}
-    #flash{position:absolute;z-index:2;inset:0;pointer-events:none;background:#ff355e;opacity:0}
-    .footer{position:absolute;bottom:calc(env(safe-area-inset-bottom) + 10px);left:0;right:0;text-align:center;color:#ffffff55;font-size:11px;pointer-events:none}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>리얼월드: 살아있는 도시 RPG</title>
+<style>
+:root{--gold:#ffd76a;--cyan:#68e8ff;--glass:#091522c9;--line:#ffffff24;--txt:#f4f8ff}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#03070c;color:var(--txt);font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif;touch-action:none}
+#app{position:relative;width:100%;height:100dvh;overflow:hidden;background:#000}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+#hud{position:absolute;z-index:5;inset:0;pointer-events:none;padding:calc(env(safe-area-inset-top) + 9px) 10px calc(env(safe-area-inset-bottom) + 9px)}
+.top{display:flex;gap:7px;align-items:flex-start}.card{background:linear-gradient(145deg,#102437de,#06111ddd);border:1px solid var(--line);box-shadow:0 8px 25px #0008,inset 0 1px #ffffff17;border-radius:13px;backdrop-filter:blur(8px)}
+.profile{display:flex;align-items:center;padding:7px 9px;min-width:145px}.avatar{width:33px;height:33px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#56d8ff,#3154aa);border:2px solid #c3f5ff;font-size:18px}.ptext{margin-left:8px;font-size:10px;color:#9fb4c8}.ptext b{display:block;color:white;font-size:12px}.bar{margin-top:4px;width:82px;height:5px;border-radius:8px;background:#0008;overflow:hidden}.bar i{display:block;height:100%;width:78%;background:linear-gradient(90deg,#39d78b,#a5ffb9)}
+.stats{margin-left:auto;padding:7px 10px;text-align:right;font-size:10px;line-height:1.55;color:#a9bbcc}.stats strong{font-size:13px;color:var(--gold)}
+#quest{position:absolute;top:78px;left:10px;width:min(250px,62vw);padding:9px 11px;font-size:11px;line-height:1.45}.qtitle{color:var(--gold);font-weight:900}.progress{height:4px;margin-top:7px;background:#0008;border-radius:4px;overflow:hidden}.progress i{display:block;width:0%;height:100%;background:var(--gold);transition:.3s}
+#cross{position:absolute;left:50%;top:50%;width:18px;height:18px;transform:translate(-50%,-50%);opacity:.75}#cross:before,#cross:after{content:"";position:absolute;background:#fff;box-shadow:0 0 5px #000}#cross:before{left:8px;top:1px;width:2px;height:16px}#cross:after{left:1px;top:8px;width:16px;height:2px}
+#message{position:absolute;left:50%;top:39%;transform:translate(-50%,-50%);padding:8px 14px;border-radius:15px;background:#06111ddd;border:1px solid #ffffff30;font-size:12px;opacity:0;transition:.25s;white-space:nowrap}.show{opacity:1!important}
+#weather{position:absolute;right:10px;top:78px;padding:8px 10px;font-size:11px;text-align:right;line-height:1.5}
+#interact{pointer-events:auto;position:absolute;right:18px;bottom:calc(env(safe-area-inset-bottom) + 28px);width:74px;height:74px;border-radius:50%;border:2px solid #ffffff75;background:radial-gradient(circle at 35% 30%,#69eaff,#1873a4);color:white;font-size:11px;font-weight:900;box-shadow:0 5px 22px #008fd788;display:none}
+#joy{pointer-events:auto;position:absolute;left:18px;bottom:calc(env(safe-area-inset-bottom) + 26px);width:112px;height:112px;border-radius:50%;background:#07152288;border:1px solid #ffffff35;box-shadow:inset 0 0 30px #0008}.knob{position:absolute;left:35px;top:35px;width:42px;height:42px;border-radius:50%;background:linear-gradient(145deg,#d9f8ffcc,#69b8d4aa);border:2px solid #fff9;box-shadow:0 4px 12px #0009}
+#lookHint{position:absolute;right:15px;bottom:118px;color:#fff7;font-size:10px;text-shadow:0 1px 3px #000}
+#map{position:absolute;right:10px;top:130px;width:92px;height:92px;border-radius:50%;border:2px solid #ffffff66;background:#06101ccc;box-shadow:0 5px 20px #000;overflow:hidden}
+#panel{position:absolute;z-index:12;inset:0;display:none;align-items:flex-end;background:#0008;pointer-events:auto}.sheet{width:100%;max-height:74%;overflow:auto;padding:22px 18px calc(env(safe-area-inset-bottom) + 20px);background:linear-gradient(#12283bf5,#07121dfb);border-top:1px solid #ffffff30;border-radius:24px 24px 0 0;box-shadow:0 -15px 50px #000}.sheet h2{margin:0 0 5px;color:var(--gold)}.sheet p{font-size:12px;color:#b9cad8;line-height:1.6}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.item{padding:13px;border-radius:14px;background:#ffffff0c;border:1px solid #ffffff18}.item b{display:block;font-size:13px}.item small{color:#9eb1c2}.buy,.close{margin-top:9px;border:0;border-radius:10px;padding:9px 11px;font-weight:900}.buy{background:#ffd76a;color:#201900}.close{width:100%;background:#ffffff18;color:white;padding:13px}
+#start{position:absolute;z-index:30;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:32px 22px calc(env(safe-area-inset-bottom) + 30px);background:linear-gradient(0deg,#030912 5%,#06101dbd 45%,transparent 80%)}#start:before{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(circle at 70% 20%,#5bc6ff44,transparent 35%),linear-gradient(145deg,#182f48,#07111d 55%,#02060a)}
+.logo{font-size:clamp(38px,12vw,68px);line-height:.95;letter-spacing:-4px;font-weight:1000;text-shadow:0 4px 30px #51cdf966}.logo span{display:block;color:var(--cyan);font-size:.38em;letter-spacing:3px;margin-bottom:8px}.desc{max-width:480px;color:#b5c9d9;font-size:13px;line-height:1.7}.features{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0 20px}.features i{font-style:normal;font-size:10px;border:1px solid #ffffff28;border-radius:20px;padding:6px 9px;background:#ffffff0d}.startBtn{border:0;border-radius:17px;padding:17px;font-size:16px;font-weight:1000;color:#062034;background:linear-gradient(135deg,#b9f6ff,#48d7ff);box-shadow:0 9px 35px #23bce255}
+</style>
 </head>
-<body>
-<div id="app">
-  <canvas id="game" aria-label="폭주 드론을 터치해 방어하는 게임"></canvas>
-  <div class="hud"><div class="chip">점수 <span id="score" class="accent">0</span></div><div class="chip">기지 <span id="hp">♥♥♥♥♥</span></div><div class="chip"><span id="time">60</span>초</div></div>
-  <div id="combo">COMBO ×2</div><div id="flash"></div>
-  <section id="start" class="screen">
-    <h1>폭주 드론<br>방어전</h1>
-    <p class="tag">도시 방어망을 뚫고 접근하는 폭주 드론을 무력화하세요. 빠르고 정확한 터치가 필요합니다!</p>
-    <button id="startBtn">방어 시작</button>
-    <div class="how">드론을 터치해 격추 · 민간 구조 캡슐은 터치 금지<br>60초 동안 기지를 지키면 승리!</div>
-  </section>
-  <section id="over" class="screen hidden">
-    <h1 id="overTitle">작전 종료</h1>
-    <p class="result">최종 점수<br><b id="finalScore">0</b></p>
-    <button id="retryBtn">다시 도전</button>
-  </section>
-  <div class="footer">폭력적 실존 인물 대신 가상의 폭주 기계를 상대하는 아케이드 게임입니다.</div>
+<body><div id="app"><canvas id="game"></canvas><canvas id="rain"></canvas>
+<div id="hud">
+ <div class="top"><div class="card profile"><div class="avatar">🧑</div><div class="ptext"><b>시민 한결 · Lv. 7</b>체력<div class="bar"><i id="hpbar"></i></div></div></div><div class="card stats">자산 <strong id="money">₩ 12,500</strong><br><span id="clock">월요일 08:20</span></div></div>
+ <div id="quest" class="card"><div class="qtitle">◆ 오늘의 목표</div>도시 주민 3명과 대화하기 <b id="qp">0 / 3</b><div class="progress"><i id="qbar"></i></div></div>
+ <div id="weather" class="card"><b id="weatherName">☀️ 맑음</b><br><span id="temp">18°C · 경제 안정</span></div>
+ <canvas id="map"></canvas><div id="cross"></div><div id="message"></div><div id="joy"><div class="knob"></div></div><button id="interact">대화<br>하기</button><div id="lookHint">화면을 밀어 둘러보기</div>
+</div>
+<div id="panel"><div class="sheet"><h2 id="panelTitle">상점</h2><p id="panelDesc"></p><div id="items" class="grid"></div><button class="close">닫기</button></div></div>
+<section id="start"><div class="logo"><span>LIVING CITY RPG</span>리얼월드</div><p class="desc">경제와 인구가 움직이고, 날씨와 시간이 흐르는 살아있는 3D 도시입니다. 거리를 걷고 주민과 대화하며 상점·은행·주택을 이용하세요.</p><div class="features"><i>🏙️ 절차 생성 도시</i><i>👥 주민 생활 AI</i><i>📈 실시간 경제</i><i>🌦️ 동적 날씨</i><i>🌙 낮과 밤</i></div><button class="startBtn">도시에 입장하기</button></section>
 </div>
 <script>
-(()=>{
-'use strict';
-const app=document.querySelector('#app'),c=document.querySelector('#game'),x=c.getContext('2d');
-const $=s=>document.querySelector(s); let W,H,dpr,run=false,last=0,elapsed=0,spawn=0,score=0,hp=5,combo=0,comboT=0,shake=0,entities=[],parts=[],stars=[];
-function resize(){dpr=Math.min(devicePixelRatio||1,2);W=app.clientWidth;H=app.clientHeight;c.width=W*dpr;c.height=H*dpr;x.setTransform(dpr,0,0,dpr,0,0);stars=Array.from({length:70},()=>({x:Math.random()*W,y:Math.random()*H,s:Math.random()*1.7+.3}));}
-addEventListener('resize',resize);resize();
-function reset(){score=0;hp=5;elapsed=spawn=combo=comboT=0;entities=[];parts=[];run=true;last=performance.now();updateHud();$('#over').classList.add('hidden');requestAnimationFrame(loop)}
-function updateHud(){$('#score').textContent=score;$('#hp').textContent='♥'.repeat(Math.max(0,hp))+'♡'.repeat(Math.max(0,5-hp));$('#time').textContent=Math.max(0,Math.ceil(60-elapsed));}
-function makeEntity(){let rescue=Math.random()<.12;let r=rescue?19:18+Math.random()*12;entities.push({x:r+Math.random()*(W-r*2),y:-35,r,vy:75+Math.random()*75+elapsed*1.2,vx:(Math.random()-.5)*36,a:Math.random()*6.28,spin:(Math.random()-.5)*3,rescue,hp:(!rescue&&elapsed>35&&Math.random()<.18)?2:1});}
-function burst(e,color){for(let i=0;i<16;i++){let a=Math.random()*6.28,s=50+Math.random()*170;parts.push({x:e.x,y:e.y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:.4+Math.random()*.4,color})}}
-function hit(px,py){if(!run)return;for(let i=entities.length-1;i>=0;i--){let e=entities[i],dx=px-e.x,dy=py-e.y;if(dx*dx+dy*dy<(e.r+13)**2){if(e.rescue){score=Math.max(0,score-100);hp--;combo=0;burst(e,'#ff4d8d');shake=9;flash();entities.splice(i,1);if(hp<=0)end(false)}else{e.hp--;burst(e,e.hp?'#ffd166':'#51e5ff');if(e.hp<=0){combo++;comboT=1.5;score+=10+Math.min(combo,20)*2;entities.splice(i,1);showCombo()}else score+=5}updateHud();return}}}
-function coords(ev){let r=c.getBoundingClientRect(),p=ev.touches?ev.touches[0]:ev;return{x:(p.clientX-r.left)*W/r.width,y:(p.clientY-r.top)*H/r.height}}
-c.addEventListener('pointerdown',e=>{e.preventDefault();let p=coords(e);hit(p.x,p.y)});
-function flash(){let f=$('#flash');f.style.opacity=.28;setTimeout(()=>f.style.opacity=0,90)}
-function showCombo(){if(combo<2)return;let el=$('#combo');el.textContent='COMBO ×'+combo;el.classList.add('show');clearTimeout(showCombo.t);showCombo.t=setTimeout(()=>el.classList.remove('show'),500)}
-function end(win){run=false;$('#finalScore').textContent=score;$('#overTitle').textContent=win?'도시 방어 성공!':'기지 방어 실패';$('#over').classList.remove('hidden')}
-function drone(e){x.save();x.translate(e.x,e.y);x.rotate(e.a);if(e.rescue){x.shadowBlur=16;x.shadowColor='#63f59a';x.fillStyle='#bfffd4';x.beginPath();x.arc(0,0,e.r,0,7);x.fill();x.fillStyle='#138c55';x.fillRect(-5,-11,10,22);x.fillRect(-11,-5,22,10);x.strokeStyle='#fff';x.lineWidth=2;x.stroke();}else{x.shadowBlur=15;x.shadowColor=e.hp>1?'#ffd166':'#ff4d8d';x.fillStyle=e.hp>1?'#6a5522':'#40203b';x.strokeStyle=e.hp>1?'#ffd166':'#ff4d8d';x.lineWidth=3;x.beginPath();x.moveTo(-e.r,0);x.lineTo(-e.r*.45,-e.r*.55);x.lineTo(e.r*.45,-e.r*.55);x.lineTo(e.r,0);x.lineTo(e.r*.45,e.r*.55);x.lineTo(-e.r*.45,e.r*.55);x.closePath();x.fill();x.stroke();x.fillStyle='#ff315f';x.beginPath();x.arc(0,0,5,0,7);x.fill();x.strokeStyle='#9eefff';x.lineWidth=2;x.beginPath();x.moveTo(-e.r-7,-7);x.lineTo(-e.r-7,7);x.moveTo(e.r+7,-7);x.lineTo(e.r+7,7);x.stroke()}x.restore()}
-function draw(dt){x.save();if(shake){x.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake);shake*=.85}let g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,'#071329');g.addColorStop(1,'#0c1830');x.fillStyle=g;x.fillRect(-15,-15,W+30,H+30);x.fillStyle='#bceeff';for(let s of stars){s.y+=s.s*10*dt;if(s.y>H)s.y=0;x.globalAlpha=.25+s.s/3;x.fillRect(s.x,s.y,s.s,s.s)}x.globalAlpha=1;
-// city
-x.fillStyle='#0b2035';for(let i=0;i<W;i+=35){let bh=50+(i*17%85);x.fillRect(i,H-bh,30,bh);x.fillStyle='#51e5ff44';for(let yy=H-bh+12;yy<H-10;yy+=18)for(let xx=i+7;xx<i+27;xx+=12)x.fillRect(xx,yy,4,5);x.fillStyle='#0b2035'}
-x.strokeStyle='#51e5ff55';x.lineWidth=2;x.beginPath();x.arc(W/2,H+80,180,Math.PI,Math.PI*2);x.stroke();
-for(let e of entities)drone(e);for(let i=parts.length-1;i>=0;i--){let p=parts[i];p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=130*dt;p.life-=dt;x.globalAlpha=Math.max(0,p.life*1.7);x.fillStyle=p.color;x.fillRect(p.x,p.y,3,3);if(p.life<=0)parts.splice(i,1)}x.restore()}
-function loop(t){let dt=Math.min(.033,(t-last)/1000);last=t;if(run){elapsed+=dt;spawn-=dt;comboT-=dt;if(comboT<=0)combo=0;if(spawn<=0){makeEntity();spawn=Math.max(.22,.72-elapsed*.007)}for(let i=entities.length-1;i>=0;i--){let e=entities[i];e.y+=e.vy*dt;e.x+=e.vx*dt;e.a+=e.spin*dt;if(e.x<e.r||e.x>W-e.r)e.vx*=-1;if(e.y>H-55){if(!e.rescue){hp--;shake=12;flash()}entities.splice(i,1);updateHud();if(hp<=0){end(false);break}}}if(elapsed>=60)end(true)}draw(dt);if(run)requestAnimationFrame(loop)}
-$('#startBtn').onclick=()=>{$('#start').classList.add('hidden');reset()};$('#retryBtn').onclick=reset;draw(0);
+(()=>{'use strict';
+const $=s=>document.querySelector(s),cv=$('#game'),ctx=cv.getContext('2d'),rc=$('#rain'),rx=rc.getContext('2d'),mm=$('#map'),mx=mm.getContext('2d');
+let W,H,D=1,started=false,last=0,player={x:3.5,y:13.5,a:0},keys={},joy={x:0,y:0},lookId=null,lookX=0,money=12500,talked=0,worldMin=480,day=0,weather=0,weatherT=35,economy=1,population=28410,near=null,msgT=0;
+const N=24, map=Array.from({length:N},()=>Array(N).fill(0));
+// 0 road/open, 1 office, 2 brick, 3 shop, 4 bank, 5 home, 6 park wall
+for(let y=0;y<N;y++)for(let x=0;x<N;x++){if(x==0||y==0||x==N-1||y==N-1)map[y][x]=1;else if(x%6>1&&y%6>1){let edge=x%6==2||y%6==2||x%6==5||y%6==5;if(edge||Math.random()<.28)map[y][x]=1+((x*7+y*3)%6)}}
+for(let y=11;y<=14;y++)for(let x=1;x<N-1;x++)map[y][x]=0;for(let x=10;x<=13;x++)for(let y=1;y<N-1;y++)map[y][x]=0;
+const labels=[{x:4.5,y:11.1,t:'시민 마트',type:'shop'},{x:10.2,y:7.5,t:'미래 은행',type:'bank'},{x:15.5,y:14.8,t:'시청 광장',type:'city'},{x:13.8,y:18.5,t:'한강 주택',type:'home'}];
+const names=['김민준','박서연','이도윤','최지우','한유진','윤시후','오하린','정도현','강수아','임지호'];
+const lines=['오늘 물가가 조금 올랐네요.','공원 쪽 풍경이 정말 좋아요.','퇴근하고 마트에 들를 거예요.','새 일자리가 생겼다는군요!','비가 오기 전에 집에 가야겠어요.','이 도시는 매일 달라지는 것 같아요.'];
+let npcs=Array.from({length:18},(_,i)=>{let p;do p={x:1.5+Math.random()*(N-3),y:1.5+Math.random()*(N-3)};while(map[p.y|0][p.x|0]);return{...p,a:Math.random()*6.28,v:.25+Math.random()*.3,name:names[i%names.length],mood:Math.random(),color:`hsl(${i*47%360} 55% 65%)`,wait:0}});
+function resize(){W=innerWidth;H=innerHeight;D=Math.min(devicePixelRatio||1,1.7);for(const c of[cv,rc]){c.width=W*D;c.height=H*D;c.style.width=W+'px';c.style.height=H+'px';c.getContext('2d').setTransform(D,0,0,D,0,0)}mm.width=184;mm.height=184;mx.setTransform(2,0,0,2,0,0)}addEventListener('resize',resize);resize();
+const colors={1:['#496a83','#29475e'],2:['#8a554a','#5c342f'],3:['#568f89','#315e5a'],4:['#b5a36e','#6e623e'],5:['#8b7892','#59495f'],6:['#47754f','#2e5034']};
+function solid(x,y){return x<0||y<0||x>=N||y>=N||map[y|0][x|0]>0}
+function ray(a){let dx=Math.cos(a),dy=Math.sin(a),x=player.x,y=player.y,d=0,side=0;while(d<28){x+=dx*.035;y+=dy*.035;d+=.035;if(solid(x,y)){let fx=x-Math.floor(x),fy=y-Math.floor(y);side=Math.min(fx,1-fx)<Math.min(fy,1-fy);return{d,x,y,t:map[y|0]?.[x|0]||1,side}}}return{d:28,t:1,side:0}}
+function render(){let hour=(worldMin/60)%24, sun=Math.max(.08,Math.sin((hour-5)/24*Math.PI*2)*.48+.52),skyTop=weather==2?'#27323c':hour>18||hour<6?'#081326':'#4d9bd0',skyBot=weather==2?'#65717a':hour>18||hour<6?'#293550':'#bde4ee';let g=ctx.createLinearGradient(0,0,0,H*.58);g.addColorStop(0,skyTop);g.addColorStop(1,skyBot);ctx.fillStyle=g;ctx.fillRect(0,0,W,H*.58);ctx.fillStyle=`rgba(255,245,203,${sun*.8})`;ctx.beginPath();ctx.arc(W*.76,H*.17,28,0,7);ctx.fill();ctx.fillStyle=hour>18||hour<6?'#171c2b':'#68747a';ctx.fillRect(0,H*.5,W,H*.5);
+ let cols=Math.min(420,Math.ceil(W/2)),cw=W/cols+1,z=[];for(let i=0;i<cols;i++){let ra=player.a-.56+i/(cols-1)*1.12,r=ray(ra),dist=r.d*Math.cos(ra-player.a),wh=Math.min(H*1.35,H/dist),top=H*.5-wh*.5,type=colors[r.t]||colors[1],shade=Math.max(.2,sun*(1-r.d/34))*(r.side?.78:1);ctx.fillStyle=shadeColor(type[((r.x+r.y)*3|0)%2],shade);ctx.fillRect(i*cw,top,cw+1,wh);if(r.t==3&&wh>80){ctx.fillStyle=`rgba(255,220,90,${shade})`;ctx.fillRect(i*cw,top+wh*.58,cw+1,wh*.22)}if(r.t==4&&wh>80){ctx.fillStyle=`rgba(130,220,255,${shade})`;ctx.fillRect(i*cw,top+wh*.18,cw+1,wh*.22)}if(wh>55&&i%4==0){ctx.fillStyle=`rgba(190,225,242,${.25*shade})`;ctx.fillRect(i*cw,top+wh*.17,cw*.72,Math.max(2,wh*.09));ctx.fillRect(i*cw,top+wh*.38,cw*.72,Math.max(2,wh*.09))}z[i]=dist}
+ renderSprites(z,cols,cw,sun);if(weather==2)drawRain();else rx.clearRect(0,0,W,H);drawMap();}
+function shadeColor(hex,k){let n=parseInt(hex.slice(1),16),r=n>>16,g=n>>8&255,b=n&255;return`rgb(${r*k|0},${g*k|0},${b*k|0})`}
+function renderSprites(z,cols,cw,sun){let sprites=[...npcs.map(n=>({...n,kind:'npc'})),...labels.map(n=>({...n,kind:'label'}))];sprites.sort((a,b)=>((b.x-player.x)**2+(b.y-player.y)**2)-((a.x-player.x)**2+(a.y-player.y)**2));near=null;for(let s of sprites){let dx=s.x-player.x,dy=s.y-player.y,dist=Math.hypot(dx,dy),ang=Math.atan2(dy,dx)-player.a;while(ang>Math.PI)ang-=6.283;while(ang<-Math.PI)ang+=6.283;if(Math.abs(ang)>.7||dist<.25)continue;let sx=(ang/1.12+.5)*W,idx=Math.max(0,Math.min(cols-1,(sx/W*cols)|0));if(z[idx]<dist)continue;let size=Math.min(H*.7,H/dist*(s.kind==='npc'?.58:.3)),base=H*.5+size*.48;if(s.kind==='npc'){ctx.fillStyle='#0005';ctx.beginPath();ctx.ellipse(sx,base,size*.24,size*.07,0,0,7);ctx.fill();ctx.fillStyle=s.color;ctx.fillRect(sx-size*.16,base-size*.62,size*.32,size*.52);ctx.fillStyle='#dfaf8d';ctx.beginPath();ctx.arc(sx,base-size*.76,size*.14,0,7);ctx.fill();ctx.fillStyle='#15191d';ctx.beginPath();ctx.arc(sx,base-size*.8,size*.145,3.15,6.25);ctx.fill();ctx.textAlign='center';ctx.font=`700 ${Math.max(9,size*.07)}px sans-serif`;ctx.fillStyle='#fff';ctx.strokeStyle='#000';ctx.lineWidth=3;ctx.strokeText(s.name,sx,base-size*.98);ctx.fillText(s.name,sx,base-size*.98);if(dist<1.45&&Math.abs(ang)<.22)near=s}else{ctx.textAlign='center';ctx.font=`900 ${Math.max(10,size*.12)}px sans-serif`;ctx.fillStyle='#ffe281';ctx.strokeStyle='#000b';ctx.lineWidth=4;ctx.strokeText(s.t,sx,base-size*.7);ctx.fillText(s.t,sx,base-size*.7);if(dist<1.6&&Math.abs(ang)<.25)near=s}}
+$('#interact').style.display=near?'block':'none';if(near)$('#interact').innerHTML=near.kind==='npc'?'대화<br>하기':'이용<br>하기'}
+function drawRain(){rx.clearRect(0,0,W,H);rx.strokeStyle='#c7e8ff77';rx.lineWidth=1.2;rx.beginPath();let t=performance.now()*.7;for(let i=0;i<90;i++){let x=(i*79+t*.08)% (W+80)-40,y=(i*137+t)%(H+80)-40;rx.moveTo(x,y);rx.lineTo(x-7,y+19)}rx.stroke()}
+function drawMap(){mx.clearRect(0,0,92,92);mx.save();mx.translate(46,46);mx.rotate(-player.a+Math.PI/2);let sc=3.3;for(let y=0;y<N;y++)for(let x=0;x<N;x++)if(map[y][x]){mx.fillStyle=colors[map[y][x]][0];mx.fillRect((x-player.x)*sc,(y-player.y)*sc,sc+.3,sc+.3)}mx.fillStyle='#ffd76a';for(let n of npcs)mx.fillRect((n.x-player.x)*sc-1,(n.y-player.y)*sc-1,2,2);mx.restore();mx.fillStyle='#69efff';mx.beginPath();mx.moveTo(46,40);mx.lineTo(42,51);mx.lineTo(50,51);mx.closePath();mx.fill()}
+function tick(dt){worldMin+=dt*2.4;weatherT-=dt;if(weatherT<0){weather=(weather+1)%3;weatherT=35+Math.random()*35;notify(['맑은 날씨가 시작됐습니다.','구름이 도시를 덮습니다.','빗방울이 떨어지기 시작합니다.'][weather])}economy+=(Math.random()-.5)*dt*.001;economy=Math.max(.91,Math.min(1.12,economy));let f=joy.y,st=joy.x;if(keys.w)f=-1;if(keys.s)f=1;if(keys.a)st=-1;if(keys.d)st=1;let speed=dt*2.25,nx=player.x+Math.cos(player.a)*(-f)*speed+Math.cos(player.a+1.57)*st*speed,ny=player.y+Math.sin(player.a)*(-f)*speed+Math.sin(player.a+1.57)*st*speed;if(!solid(nx,player.y))player.x=nx;if(!solid(player.x,ny))player.y=ny;for(let n of npcs){n.wait-=dt;if(n.wait<0){if(Math.random()<.018){n.a+=Math.random()*2-1;n.wait=Math.random()*2}else{let nx=n.x+Math.cos(n.a)*n.v*dt,ny=n.y+Math.sin(n.a)*n.v*dt;if(solid(nx,ny)){n.a+=1.5+Math.random()*2;n.wait=.5}else{n.x=nx;n.y=ny}}}}updateUI()}
+function updateUI(){let d=Math.floor(worldMin/1440),m=((worldMin%1440)+1440)%1440,h=(m/60)|0,mi=m%60|0;$('#clock').textContent=['월','화','수','목','금','토','일'][d%7]+'요일 '+String(h).padStart(2,'0')+':'+String(mi).padStart(2,'0');$('#money').textContent='₩ '+money.toLocaleString();let wn=['☀️ 맑음','⛅ 흐림','🌧️ 비'][weather];$('#weatherName').textContent=wn;$('#temp').textContent=(weather==2?15:weather==1?17:21)+'°C · 경제 '+(economy>1.02?'호황':economy<.97?'둔화':'안정');if(msgT>0){msgT-=.016;if(msgT<=0)$('#message').classList.remove('show')}}
+function notify(t){let m=$('#message');m.textContent=t;m.classList.add('show');msgT=2.4}
+function interact(){if(!near)return;if(near.kind==='npc'){notify(near.name+' : “'+lines[Math.random()*lines.length|0]+'”');if(!near.done){near.done=1;talked++;money+=120;$('#qp').textContent=talked+' / 3';$('#qbar').style.width=Math.min(100,talked/3*100)+'%';if(talked==3){money+=1500;setTimeout(()=>notify('목표 완료! 보상 ₩1,500'),700)}}}else openPanel(near)}
+function openPanel(s){let data={shop:['시민 마트','생활에 필요한 물품을 구매합니다.',[['따뜻한 커피','₩ 1,800','☕'],['도시락','₩ 4,500','🍱'],['우산','₩ 9,000','☂️'],['운동화','₩ 42,000','👟']]],bank:['미래 은행','예금 금리는 경제 상황에 따라 변합니다.',[['보통 예금','금리 '+(2.1*economy).toFixed(2)+'%','🏦'],['도시 펀드','위험도 보통','📊']]],city:['시청 광장','도시 인구 '+population.toLocaleString()+'명 · 만족도 82%',[['구인 게시판','일자리 316개','💼'],['시민 통계','인구 증가 +1.2%','👥']]],home:['한강 주택','내 집을 관리하고 휴식합니다.',[['휴식하기','체력 회복','🛏️'],['인테리어','가구 편집','🪴']]]}[s.type]||['시설','도시 시설입니다.',[]];$('#panelTitle').textContent=data[0];$('#panelDesc').textContent=data[1];$('#items').innerHTML=data[2].map((it,i)=>`<div class="item"><b>${it[2]} ${it[0]}</b><small>${it[1]}</small><button class="buy" data-i="${i}">선택</button></div>`).join('');$('#panel').style.display='flex';document.querySelectorAll('.buy').forEach(b=>b.onclick=()=>{notify('서비스를 이용했습니다.');if(s.type==='shop'){let cost=[1800,4500,9000,42000][+b.dataset.i];if(money>=cost)money-=cost;else notify('잔액이 부족합니다.')}$('#panel').style.display='none'})}
+function loop(t){let dt=Math.min(.033,(t-last)/1000||0);last=t;if(started)tick(dt);render();requestAnimationFrame(loop)}
+const joyEl=$('#joy'),knob=$('.knob');function setJoy(e){let r=joyEl.getBoundingClientRect(),p=e.touches?e.touches[0]:e,dx=p.clientX-r.left-r.width/2,dy=p.clientY-r.top-r.height/2,len=Math.hypot(dx,dy),max=34;if(len>max){dx*=max/len;dy*=max/len}joy.x=dx/max;joy.y=dy/max;knob.style.transform=`translate(${dx}px,${dy}px)`}joyEl.addEventListener('pointerdown',e=>{joyEl.setPointerCapture(e.pointerId);setJoy(e)});joyEl.addEventListener('pointermove',e=>{if(e.buttons)setJoy(e)});function joyEnd(){joy.x=joy.y=0;knob.style.transform=''}joyEl.addEventListener('pointerup',joyEnd);joyEl.addEventListener('pointercancel',joyEnd);
+cv.addEventListener('pointerdown',e=>{lookId=e.pointerId;lookX=e.clientX;cv.setPointerCapture(e.pointerId)});cv.addEventListener('pointermove',e=>{if(e.pointerId===lookId){player.a+=(e.clientX-lookX)*.006;lookX=e.clientX}});cv.addEventListener('pointerup',()=>lookId=null);
+addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=1;if(e.key==='ArrowLeft')player.a-=.12;if(e.key==='ArrowRight')player.a+=.12});addEventListener('keyup',e=>keys[e.key.toLowerCase()]=0);$('#interact').onclick=interact;$('.close').onclick=()=>$('#panel').style.display='none';$('#panel').onclick=e=>{if(e.target===$('#panel'))$('#panel').style.display='none'};$('.startBtn').onclick=()=>{$('#start').style.display='none';started=true;notify('리얼월드에 오신 것을 환영합니다!')};requestAnimationFrame(loop);
 })();
-</script>
-</body>
-</html>
+</script></body></html>
