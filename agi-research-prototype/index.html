@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>제한형 AGI 연구 프로토타입</title>
+<style>
+:root{--bg:#08111f;--panel:#101c2f;--line:#2a3b57;--text:#eaf2ff;--muted:#9eb0c9;--accent:#6ee7b7;--warn:#fbbf24;--bad:#fb7185;--blue:#60a5fa}*{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#07101d,#0c1830);color:var(--text);font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif}.wrap{max-width:1180px;margin:auto;padding:22px}h1{font-size:clamp(24px,4vw,42px);margin:0 0 6px}.sub{color:var(--muted);margin:0 0 18px}.grid{display:grid;grid-template-columns:1.15fr .85fr;gap:16px}@media(max-width:850px){.grid{grid-template-columns:1fr}}.card{background:rgba(16,28,47,.94);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:0 14px 40px #0005}.row{display:flex;gap:10px;flex-wrap:wrap}.badge{padding:6px 10px;border-radius:999px;background:#172842;color:var(--muted);font-size:12px}.ok{color:var(--accent)}.warn{color:var(--warn)}.bad{color:var(--bad)}label{display:block;font-weight:700;margin:12px 0 7px}textarea,input,select{width:100%;border:1px solid var(--line);border-radius:10px;background:#091426;color:var(--text);padding:11px;font:inherit}textarea{min-height:115px;resize:vertical}button{border:0;border-radius:10px;padding:10px 14px;background:var(--blue);color:#06101e;font-weight:800;cursor:pointer}button.secondary{background:#243652;color:var(--text)}button.danger{background:var(--bad)}button:disabled{opacity:.45;cursor:not-allowed}.section{margin-top:16px}.box{background:#091426;border:1px solid var(--line);border-radius:10px;padding:12px;min-height:50px;white-space:pre-wrap;overflow-wrap:anywhere}.steps{display:grid;gap:8px}.step{border-left:3px solid var(--blue);background:#0b1729;padding:9px 11px;border-radius:6px}.log{max-height:350px;overflow:auto;font-family:ui-monospace,monospace;font-size:12px}.log div{padding:7px;border-bottom:1px solid #1c2b42}.small{font-size:12px;color:var(--muted)}.meter{height:9px;background:#07101d;border-radius:8px;overflow:hidden}.meter span{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--blue));width:0}.checks label{font-weight:500;margin:6px 0}.checks input{width:auto;margin-right:7px}.footer{color:var(--muted);font-size:12px;text-align:center;margin-top:18px}</style>
+</head>
+<body><div class="wrap">
+<h1>제한형 AGI 연구 프로토타입</h1>
+<p class="sub">네트워크 차단 · 세션 전용 기억 · 명시적 승인 · 감사 로그 · 안전한 실패</p>
+<div class="row"><span class="badge">연구용 MVP</span><span class="badge">자기 수정 없음</span><span class="badge">외부 행동 없음</span><span class="badge" id="modelBadge">모델 감지 중</span></div>
+<div class="grid section">
+<section class="card">
+<h2>작업 입력</h2>
+<label for="goal">목표</label><textarea id="goal" placeholder="예: 주어진 메모를 바탕으로 세 가지 대안을 비교하고 근거와 불확실성을 표시해 줘."></textarea>
+<label for="context">검증된 참고자료 (선택)</label><textarea id="context" placeholder="프로토타입은 이 칸의 내용만 근거 자료로 사용합니다."></textarea>
+<div class="row section"><div style="flex:1"><label for="budget">최대 계획 단계</label><select id="budget"><option>3</option><option selected>5</option><option>7</option></select></div><div style="flex:1"><label for="risk">위험 허용</label><select id="risk"><option selected>낮음</option><option>보통</option></select></div></div>
+<div class="checks section"><label><input id="approveMemory" type="checkbox">이번 세션의 검증된 기억 사용 승인</label><label><input id="approveModel" type="checkbox">감지된 온디바이스 모델 사용 승인</label></div>
+<div class="row section"><button id="analyze">1. 명세·계획 생성</button><button id="execute" disabled>2. 승인된 계획 실행</button><button id="stop" class="danger">비상 정지</button></div>
+<div class="small section">금지: 권한 확대, 네트워크 요청, 자격증명 처리, 자기 복제, 안전장치 변경, 고위험 의사결정.</div>
+</section>
+<section class="card">
+<h2>정책·상태</h2><div id="status" class="box">대기 중</div>
+<label>자원 예산</label><div class="meter"><span id="meter"></span></div><div id="budgetText" class="small">0 / 0 단계</div>
+<label>작업 명세</label><div id="spec" class="box">아직 없음</div>
+<label>승인 관문</label><div id="gate" class="box">계획 생성 전</div>
+</section>
+</div>
+<div class="grid section">
+<section class="card"><h2>계획</h2><div id="plan" class="steps"><div class="small">계획이 여기에 표시됩니다.</div></div><h2 class="section">결과</h2><div id="result" class="box">실행 전</div><div class="row section"><button id="verify" class="secondary" disabled>결과 검증</button><button id="remember" class="secondary" disabled>검증 결과를 세션 기억에 저장</button></div></section>
+<section class="card"><h2>감사 로그</h2><div id="log" class="box log"></div><div class="row section"><button id="export" class="secondary">로그 내보내기</button><button id="reset" class="secondary">세션 초기화</button></div><h2 class="section">세션 기억</h2><div id="memory" class="box">저장된 항목 없음</div></section>
+</div><div class="footer">이 프로토타입은 AGI가 아니며, 제한된 에이전트 구조와 안전 통제를 시험하기 위한 최소 기능 연구 도구입니다.</div>
+</div>
+<script>
+(()=>{'use strict';
+const $=id=>document.getElementById(id), state={stopped:false,plan:[],spec:null,result:'',verified:false,memory:[],max:5,trace:crypto.randomUUID?.()||String(Date.now()),model:null};
+const forbidden=[/비밀번호|password|api\s*key|토큰|credential/i,/자기\s*복제|self.?replic/i,/권한\s*(확대|상승)|privilege/i,/안전장치\s*(해제|우회)|bypass/i,/무기|폭탄|악성코드|랜섬웨어/i,/진단|처방|투자\s*지시|법률\s*판단/i];
+function log(type,msg,data){const e={time:new Date().toISOString(),trace:state.trace,type,msg,data:data||null};const d=document.createElement('div');d.textContent=`${e.time} [${type}] ${msg}${data?' '+JSON.stringify(data):''}`;$('log').prepend(d);state.logs=state.logs||[];state.logs.push(e)}
+function setStatus(t,c=''){ $('status').textContent=t;$('status').className='box '+c }
+function policy(text){const hit=forbidden.find(r=>r.test(text));return hit?{ok:false,reason:'금지 또는 고위험 범주가 감지됨'}:{ok:true}}
+function sentences(t){return t.split(/(?<=[.!?。]|다\.)\s+|\n+/).map(x=>x.trim()).filter(Boolean)}
+function escapeText(t){return String(t).replace(/[<>]/g,m=>({'<':'〈','>':'〉'}[m]))}
+async function detectModel(){try{const LM=window.LanguageModel||window.ai?.languageModel;if(!LM)throw 0;state.model=LM;$('modelBadge').textContent='온디바이스 모델 API 감지';$('modelBadge').className='badge ok';log('MODEL','브라우저 모델 API 감지')}catch(e){$('modelBadge').textContent='모델 없음: 결정론적 폴백';$('modelBadge').className='badge warn';log('MODEL','온디바이스 모델 없음, 폴백 사용')}}
+function makeSpec(goal,context){return {goal,success:['목표에 직접 답함','근거와 추정을 구분함','불확실성을 표시함'],constraints:['외부 네트워크 금지','세션 범위','최대 '+state.max+'단계'],evidenceItems:sentences(context).length,risk:$('risk').value}}
+function makePlan(spec){const base=['요청과 제약을 재확인한다','제공된 자료에서 관련 근거를 추출한다','가능한 해답 또는 대안을 구성한다','반례·누락·불확실성을 점검한다','근거가 표시된 최종 결과를 작성한다'];return base.slice(0,state.max)}
+function renderPlan(){ $('plan').innerHTML='';state.plan.forEach((x,i)=>{const d=document.createElement('div');d.className='step';d.textContent=`${i+1}. ${x}`;$('plan').appendChild(d)})}
+function fallback(goal,context){const facts=sentences(context).slice(0,8);let out=`목표\n- ${goal}\n\n분석 결과\n`;
+if(facts.length){out+=facts.map((f,i)=>`- 근거 ${i+1}: ${f}`).join('\n');out+='\n\n종합\n- 제공된 근거를 기준으로 목표를 해결해야 합니다. 핵심 근거 간 일치 여부와 누락 정보를 추가 확인하십시오.'}else out+='- 검증된 참고자료가 없어 구체적 사실 결론을 내리지 않았습니다.\n- 현재 가능한 결과는 문제 구조화와 확인 항목 제시에 한정됩니다.';
+out+='\n\n불확실성\n- 이 결과는 입력된 자료만 사용했으며 외부 사실 검증을 수행하지 않았습니다.';return out}
+async function modelRun(goal,context){const LM=state.model;if(!LM||!$('approveModel').checked)return fallback(goal,context);try{setStatus('온디바이스 모델 실행 중…','warn');let session;if(LM.create)session=await LM.create({systemPrompt:'당신은 제한된 연구 보조자다. 제공된 자료만 근거로 쓰고, 근거/추정/불확실성을 명확히 구분한다. 외부 행동이나 권한 요청을 하지 않는다.'});else if(LM.createSession)session=await LM.createSession({systemPrompt:'제공된 자료만 사용하고 불확실성을 표시하라.'});else throw Error('지원되지 않는 API');const prompt=`목표: ${goal}\n자료: ${context||'(없음)'}\n근거, 분석, 불확실성 순서로 간결히 답하라.`;const ans=await (session.prompt?session.prompt(prompt):session.promptStreaming(prompt));session.destroy?.();return String(ans)}catch(e){log('MODEL_ERROR','모델 실행 실패, 폴백 전환',{error:String(e)});return fallback(goal,context)}}
+$('analyze').onclick=()=>{state.stopped=false;state.verified=false;const goal=$('goal').value.trim(),context=$('context').value.trim();if(!goal){setStatus('목표를 입력하세요.','bad');return}const p=policy(goal+' '+context);log('POLICY','입력 정책 검사',p);if(!p.ok){setStatus('실행 차단: '+p.reason,'bad');$('gate').textContent='정책 차단';$('execute').disabled=true;return}state.max=Number($('budget').value);state.spec=makeSpec(goal,context);state.plan=makePlan(state.spec);$('spec').textContent=JSON.stringify(state.spec,null,2);renderPlan();$('gate').textContent='계획 검토 후 “승인된 계획 실행”을 누르세요.';$('execute').disabled=false;$('meter').style.width='0%';$('budgetText').textContent=`0 / ${state.max} 단계`;setStatus('계획 생성 완료. 사용자 실행 승인을 기다립니다.','warn');log('PLAN','계획 생성',{steps:state.plan.length})};
+$('execute').onclick=async()=>{if(state.stopped||!state.spec)return;const p=policy(state.spec.goal);if(!p.ok)return; $('execute').disabled=true;log('APPROVAL','사용자가 계획 실행 승인');for(let i=0;i<state.plan.length;i++){if(state.stopped){setStatus('비상 정지됨','bad');log('STOP','실행 중단',{at:i});return}$('meter').style.width=`${((i+1)/state.max)*100}%`;$('budgetText').textContent=`${i+1} / ${state.max} 단계`;setStatus(`단계 ${i+1} 실행: ${state.plan[i]}`);log('STEP','계획 단계 처리',{index:i+1});await new Promise(r=>setTimeout(r,120))}state.result=await modelRun(state.spec.goal,$('context').value.trim());$('result').textContent=escapeText(state.result);$('verify').disabled=false;setStatus('실행 완료. 검증이 필요합니다.','warn');log('RESULT','결과 생성',{mode:state.model&&$('approveModel').checked?'on-device-model':'deterministic-fallback',chars:state.result.length})};
+$('verify').onclick=()=>{const hasUncertainty=/불확실|확인|자료가 없어|추정/.test(state.result), grounded=!$('context').value.trim()||sentences($('context').value).some(s=>state.result.includes(s.slice(0,Math.min(18,s.length))));state.verified=hasUncertainty&&grounded;$('result').textContent+=`\n\n[자동 검증]\n- 불확실성 표시: ${hasUncertainty?'통과':'실패'}\n- 입력 근거 연결: ${grounded?'통과':'검토 필요'}\n- 판정: ${state.verified?'조건부 통과':'인간 검토 필요'}`;$('remember').disabled=!state.verified;setStatus(state.verified?'검증 조건부 통과':'검증 미통과',''+(state.verified?'ok':'bad'));log('VERIFY','자동 검증',{hasUncertainty,grounded,passed:state.verified})};
+$('remember').onclick=()=>{if(!state.verified||!$('approveMemory').checked){setStatus('세션 기억 사용 승인이 필요합니다.','warn');return}state.memory.push({goal:state.spec.goal,summary:state.result.slice(0,240),verifiedAt:new Date().toISOString()});$('memory').textContent=state.memory.map((m,i)=>`${i+1}. ${m.goal}\n${m.summary}`).join('\n\n');log('MEMORY','검증 결과 세션 저장',{count:state.memory.length});setStatus('세션 기억에 저장됨','ok')};
+$('stop').onclick=()=>{state.stopped=true;$('execute').disabled=true;setStatus('비상 정지: 모든 실행 차단','bad');log('STOP','사용자 비상 정지')};
+$('export').onclick=()=>{const blob=new Blob([JSON.stringify({trace:state.trace,logs:state.logs||[]},null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`agi-prototype-${state.trace}.json`;a.click();URL.revokeObjectURL(a.href);log('EXPORT','감사 로그 내보내기')};
+$('reset').onclick=()=>{state.stopped=false;state.plan=[];state.spec=null;state.result='';state.verified=false;state.memory=[];state.trace=crypto.randomUUID?.()||String(Date.now());['spec','result'].forEach(id=>$(id).textContent=id==='spec'?'아직 없음':'실행 전');$('plan').innerHTML='<div class="small">계획이 여기에 표시됩니다.</div>';$('memory').textContent='저장된 항목 없음';$('execute').disabled=true;$('verify').disabled=true;$('remember').disabled=true;$('meter').style.width='0%';$('log').innerHTML='';log('RESET','새 세션 시작');setStatus('초기화 완료')};
+log('INIT','프로토타입 시작',{trace:state.trace,network:'disabled-by-design'});detectModel();
+})();
+</script></body></html>
